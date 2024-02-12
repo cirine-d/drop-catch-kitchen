@@ -1,13 +1,13 @@
 import { GameState as GameStateContainer } from './GameState';
 import { Scene } from './Scene';
 import { Canvas } from '@react-three/fiber';
-import { CAMERA_Z_OFFSET, LEVEL_Z_INDEX, MENU_Z_INDEX, levels } from './data/constants';
-import { GameState, Level, levelName } from './data/types';
+import { CAMERA_Z_OFFSET, MENU_Z_INDEX } from './data/constants';
+import { GameState, LevelName } from './data/types';
 import { Suspense } from 'react';
 import { Physics } from '@react-three/rapier';
 
 interface UIProps {
-  startGame: (level: levelName) => void;
+  startGame: (level: LevelName) => void;
   pauseGame: () => void;
   gameState: GameState;
 }
@@ -46,7 +46,7 @@ const App: React.FC = () => {
   return (
     <>
       <GameStateContainer>
-        {({ currentLevel, pauseGame, startGame, gameState }) => (
+        {({ currentLevel, pauseGame, startGame, gameState, updateIngredientsCaught }) => (
           <>
             <UI startGame={startGame} pauseGame={pauseGame} gameState={gameState} />
             <Canvas
@@ -56,8 +56,12 @@ const App: React.FC = () => {
               }}
             >
               <Suspense>
-                <Physics>
-                  <Scene gameState={gameState} currentLevel={currentLevel} />
+                <Physics debug paused={gameState === 'paused'}>
+                  <Scene
+                    gameState={gameState}
+                    currentLevel={currentLevel}
+                    updateIngredientsCaught={updateIngredientsCaught}
+                  />
                 </Physics>
               </Suspense>
             </Canvas>

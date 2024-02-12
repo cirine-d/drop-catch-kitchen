@@ -1,3 +1,6 @@
+import { ingredientsDictionary } from './data/constants';
+import { IngredientName } from './data/types';
+
 export const generateRandom = (min: number = 0, max: number = 100) => {
   const difference = max - min;
   const rand = Math.random();
@@ -36,4 +39,9 @@ export const getDirectionFromKey = event => {
       return 'right';
     default:
   }
+};
+
+//TYPEGUARDS
+export const isIngredientName = (value: string): value is IngredientName => {
+  return Object.keys(ingredientsDictionary).includes(value);
 };

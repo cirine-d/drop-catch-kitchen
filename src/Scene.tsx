@@ -5,10 +5,13 @@ import { useEffect, useRef, useState } from 'react';
 import { GameState, IngredientName } from './data/types';
 import { CAMERA_Z_OFFSET, GAME_PANEL, LEVEL_Z_INDEX, MENU_Z_INDEX, colours } from './data/constants';
 import { IGameState } from './GameState';
-import { Ingredient } from './gameObjects/Ingredient';
 import { TextureLoader } from 'three/src/loaders/TextureLoader';
 import { copyStringIntoTypedArray, generateRandom, shuffleArray } from './utils';
 import { Basket } from './gameObjects/Basket';
+import { Ingredient } from './gameObjects/Ingredient';
+import { generateUUID } from 'three/src/math/MathUtils';
+import { Vector3 as RVector3 } from '@dimforge/rapier3d-compat';
+import { RapierRigidBody, useRapier } from '@react-three/rapier';
 
 interface IScene extends Omit<IGameState, 'startGame' | 'pauseGame'> {
   // resizeScene: () => void;
@@ -18,8 +21,9 @@ interface IScene extends Omit<IGameState, 'startGame' | 'pauseGame'> {
 
 export const Scene: React.FC<IScene> = props => {
   const scene = useThree();
+  const physicsWorld = useRapier();
   const [levelInventory, setLevelInventory] = useState<IngredientName[]>([]);
-  const [fallingIngredients, setFallingIngredients] = useState<THREE.Mesh[]>([]);
+  const [fallingIngredients, setFallingIngredients] = useState<JSX.Element[]>([]);
   const cameraPosition = useRef(scene.camera.position);
   const gamePanelBoundariesRef = useRef<any>();
 
@@ -46,14 +50,14 @@ export const Scene: React.FC<IScene> = props => {
       if (props.gameState === 'playing') {
         addIngredientToScene();
       }
-    }, 2000);
+    }, 1500);
     return () => clearInterval(interval);
   }, [props.gameState]);
 
   const MenuPanel = () => {
     const menuTexture = useLoader(TextureLoader, 'assets/startMenuPicture.jpg');
     return (
-      <mesh position={[0, 0, MENU_Z_INDEX]}>
+      <mesh name="MenuPanel" position={[0, 0, MENU_Z_INDEX]}>
         <planeGeometry args={[scene.viewport.width / 3, scene.viewport.height / 3]} />
         <meshBasicMaterial map={menuTexture} />
       </mesh>
@@ -80,18 +84,6 @@ export const Scene: React.FC<IScene> = props => {
   };
 
   const setUpGame = () => {
-    const gamePanelBoundaries = gamePanelBoundariesRef.current;
-
-    const basketMesh = Basket({
-      startPosition: new THREE.Vector3(gamePanelBoundaries.right, gamePanelBoundaries.bottom + 0.5, LEVEL_Z_INDEX),
-      gamePanelBoundaries: {
-        left: gamePanelBoundaries.left,
-        right: gamePanelBoundaries.right,
-      },
-    });
-
-    scene.scene.add(basketMesh);
-
     cameraPosition.current = new THREE.Vector3(0, 0, LEVEL_Z_INDEX + CAMERA_Z_OFFSET);
     let updatedLevelInventory = levelInventory;
     for (var i in props.currentLevel.inventory) {
@@ -122,28 +114,28 @@ export const Scene: React.FC<IScene> = props => {
   //   }
   // };
 
-  const animateFallingIngredients = () => {
-    fallingIngredients.forEach(ingredient => {
-      const fallingObject = scene.scene.getObjectById(ingredient.id);
-      if (fallingObject && fallingObject.position.y < gamePanelBoundariesRef.current.bottom) {
-        scene.scene.remove(fallingObject);
-      }
+  // const animateFallingIngredients = () => {
+  //   fallingIngredients.forEach(ingredient => {
+  //     const fallingObject = scene.scene.getObjectByName(ingredient.props.name);
+  //     if (fallingObject && fallingObject.position.y < gamePanelBoundariesRef.current.bottom) {
+  //       scene.scene.remove(fallingObject);
+  //     }
 
-      if (fallingObject) {
-        fallingObject.position.y -= 0.01;
-      }
-    });
-    // gameState.updateBasketContent();
-    // camera.moveCamera(cameraPosition);
-  };
+  //     if (fallingObject) {
+  //       fallingObject.position.y -= 0.01;
+  //     }
+  //   });
+  //   // gameState.updateBasketContent();
+  //   // camera.moveCamera(cameraPosition);
+  // };
 
-  const isIngredientInBasket = (ingredientObject: THREE.Mesh) => {
-    var basketBoundingBox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-    var ingredientBoundingBox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-    basketBoundingBox.setFromObject(props.basket.object);
-    ingredientBoundingBox.setFromObject(ingredientObject);
-    return basketBoundingBox.containsBox(ingredientBoundingBox);
-  };
+  // const isIngredientInBasket = (ingredientObject: THREE.Mesh) => {
+  //   var basketBoundingBox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+  //   var ingredientBoundingBox = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+  //   basketBoundingBox.setFromObject(props.basket.object);
+  //   ingredientBoundingBox.setFromObject(ingredientObject);
+  //   return basketBoundingBox.containsBox(ingredientBoundingBox);
+  // };
 
   // const pauseGame = () => {};
 
@@ -151,18 +143,24 @@ export const Scene: React.FC<IScene> = props => {
     const gamePanelBoundaries = gamePanelBoundariesRef.current;
     const updatedLevelInventory = levelInventory;
 
-    const ingredient = spawnIngredient(updatedLevelInventory.pop(), gamePanelBoundaries);
-    const x = fallingIngredients;
-    x.push(ingredient);
-    setFallingIngredients(x);
-    scene.scene.add(ingredient);
+    const ingredient = generateIngredient(updatedLevelInventory.pop(), gamePanelBoundaries);
+    // const updatedFallingIngredients = fallingIngredients;
+    // updatedFallingIngredients.push(ingredient);
+    setFallingIngredients(prevIngredients => [...prevIngredients, ingredient]);
     setLevelInventory(updatedLevelInventory);
   };
 
-  const spawnIngredient = (name: IngredientName, gamePanelBoundaries) => {
+  const generateIngredient = (name: IngredientName, gamePanelBoundaries) => {
     const randomXPos = generateRandom(gamePanelBoundaries.left, gamePanelBoundaries.right);
     const startPosition = new THREE.Vector3(randomXPos, gamePanelBoundaries.top, LEVEL_Z_INDEX);
-    return Ingredient({ name, startPosition });
+    return <Ingredient key={`${name}-${generateUUID()}`} name={name} startPosition={startPosition} />;
+  };
+
+  const removeIngredientFromScene = (ingredientId: number, ingredientHandle: number) => {
+    const ingredientMesh = scene.scene.getObjectById(ingredientId);
+    const ingredientBody = physicsWorld.world.getRigidBody(ingredientHandle);
+    scene.scene.remove(ingredientMesh);
+    physicsWorld.world.removeRigidBody(ingredientBody);
   };
 
   // const updateBasketContent = () => {
@@ -175,15 +173,33 @@ export const Scene: React.FC<IScene> = props => {
 
   useFrame(state => {
     state.camera.position.lerp(cameraPosition.current, 0.05);
-    if (props.gameState === 'playing') {
-      animateFallingIngredients();
-    }
+    // if (props.gameState === 'playing') {
+    //   animateFallingIngredients();
+    // }
   });
 
   return (
     <>
       <MenuPanel />
       <GameScenePanel />
+      {fallingIngredients.map(ingredient => ingredient)}
+      {props.gameState !== 'startMenu' && (
+        <Basket
+          startPosition={
+            new RVector3(
+              gamePanelBoundariesRef.current.right,
+              gamePanelBoundariesRef.current.bottom + 0.5,
+              LEVEL_Z_INDEX
+            )
+          }
+          gamePanelBoundaries={{
+            left: gamePanelBoundariesRef.current.left,
+            right: gamePanelBoundariesRef.current.right,
+          }}
+          updateIngredientsCaught={props.updateIngredientsCaught}
+          removeIngredientFromScene={removeIngredientFromScene}
+        />
+      )}
       <OrbitControls />
       <axesHelper args={[1000000]} />
     </>

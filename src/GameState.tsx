@@ -1,32 +1,33 @@
 import { useState } from 'react';
 import { levels } from './data/constants';
-import { GameState as State, levelName, Level, IngredientName, HashMap } from './data/types';
+import { GameState as State, Level, IngredientName, LevelName } from './data/types';
 
 interface Props {
   children: (props: IGameState) => React.ReactElement | null;
 }
 
 export interface IGameState {
-  startGame: (level: levelName) => void;
-  pauseGame: () => void;
   gameState: State;
   currentLevel: Level;
+  startGame: (level: LevelName) => void;
+  pauseGame: () => void;
+  updateIngredientsCaught: (ingredient: IngredientName) => void;
 }
 
 export const GameState: React.FC<Props> = ({ children }) => {
   const [gameState, setGameState] = useState<State>('startMenu');
-  const [ingredientsCaught, setIngredientsCaught] = useState<HashMap<number>>({ strawberry: 0 });
+  const [ingredientsCaught, setIngredientsCaught] = useState<Partial<Record<IngredientName, number>>>({});
   const [currentLevel, setCurrentLevel] = useState<Level>();
   //   const [timer, setTimer] = useState<number>(currentLevel.timer);
 
-  const startGame = (levelName: levelName) => {
+  const startGame = (levelName: LevelName) => {
     setGameState('startingGame');
     setCurrentLevel(levels[levelName]);
     const interval = setInterval(() => {
       setGameState('playing');
       return clearInterval(interval);
     }, 500);
-    checkForLevelCompletion();
+    checkForLevelProgress();
     // const groceryList = currentLevel.groceryList;
   };
 
@@ -42,15 +43,25 @@ export const GameState: React.FC<Props> = ({ children }) => {
     setGameState('gameOver');
   };
 
-  const checkForLevelCompletion = () => {
-    console.log(currentLevel);
+  const checkForLevelProgress = () => {
+    // console.log(currentLevel);
   };
 
-  const updateRecipeProgress = (ingredient: IngredientName) => {};
+  const updateIngredientsCaught = (ingredient: IngredientName) => {
+    const updated = {
+      ...ingredientsCaught,
+      [ingredient]: ingredientsCaught[ingredient] ? ++ingredientsCaught[ingredient] : 1,
+    };
+
+    setIngredientsCaught(updated);
+  };
+  console.log(ingredientsCaught);
+
   return children({
     startGame,
     pauseGame,
     gameState,
     currentLevel,
+    updateIngredientsCaught,
   });
 };

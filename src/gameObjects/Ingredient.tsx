@@ -1,21 +1,19 @@
-import { ingredientsDictionary } from '../data/constants';
-import { IngredientName } from '../data/types';
-import { IcosahedronGeometry, Mesh, MeshBasicMaterial } from 'three';
+import { RigidBody, interactionGroups } from '@react-three/rapier';
+import { INGREDIENTS, ingredientsDictionary } from '../data/constants';
+import { useRef } from 'react';
 
 interface Props {
-  name: IngredientName;
+  name: string;
   startPosition: THREE.Vector3;
 }
 
-export const Ingredient = (props: Props): THREE.Mesh => {
-  const ingredientMesh = new Mesh(
-    new IcosahedronGeometry(0.4),
-    new MeshBasicMaterial({ color: ingredientsDictionary[props.name].color })
+export const Ingredient: React.FC<Props> = (props: Props) => {
+  return (
+    <RigidBody name={props.name} colliders="trimesh" collisionGroups={interactionGroups(INGREDIENTS)} linearDamping={2}>
+      <mesh name={props.name} position={[props.startPosition.x, props.startPosition.y, props.startPosition.z]}>
+        <icosahedronGeometry args={[0.4]} />
+        <meshBasicMaterial color={ingredientsDictionary[props.name].color} />
+      </mesh>
+    </RigidBody>
   );
-
-  ingredientMesh.name = props.name;
-  ingredientMesh.position.set(props.startPosition.x, props.startPosition.y, props.startPosition.z);
-  // ingredientMesh.geometry.computeBoundingBox();
-
-  return ingredientMesh;
 };

@@ -1,8 +1,6 @@
-import { ingredientsDictionary, levels } from './constants';
+import { ingredientsDictionary, levels, ordersDictionary } from './constants';
 
-export type HashMap<T> = { [key: string]: T };
-
-export type BasketDirection = 'left' | 'right';
+export type BasketDirection = 'left' | 'right' | null;
 
 export type MenuAction = 'start' | 'pause';
 
@@ -10,17 +8,24 @@ export type GameState = 'startMenu' | 'startingGame' | 'playing' | 'paused' | 'g
 
 export type IngredientName = keyof typeof ingredientsDictionary;
 
-export type levelName = keyof typeof levels;
+export type OrderName = keyof typeof ordersDictionary;
+
+export type LevelName = keyof typeof levels;
 
 export interface Ingredient {
-  name: string;
   color: string;
 }
 
+export interface Order {
+  price: number;
+  recipe: Partial<Record<IngredientName, number>>;
+}
+
 export interface Level {
-  recipe: HashMap<number>;
-  inventory: HashMap<number>;
-  timer: number;
+  menu: Map<OrderName, number>;
+  inventory: Map<IngredientName, number>;
+  profitGoal: number;
+  timer: number; //minutes
 }
 
 export interface GameBoundary {

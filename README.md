@@ -1,1 +1,1 @@
-Typescript game built with THREE and Rapier.
+Typescript game built with React THREE Fiber and Rapier.

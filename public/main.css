@@ -41,8 +41,10 @@ body {
   position: absolute;
   right: 0;
   margin: 5px;
-  display: flex;
   justify-content: flex-end;
+  display: flex;
+  flex-direction: column;
+  background-color: lightskyblue;
 }
 button {
   pointer-events: auto;

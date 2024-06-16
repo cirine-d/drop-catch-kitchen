@@ -6,14 +6,14 @@ import { GameState, IngredientName } from './data/types';
 import { CAMERA_Z_OFFSET, GAME_PANEL, LEVEL_Z_INDEX, MENU_Z_INDEX, colours } from './data/constants';
 import { IGameState } from './GameState';
 import { TextureLoader } from 'three/src/loaders/TextureLoader';
-import { copyStringIntoTypedArray, generateRandom, shuffleArray } from './utils';
+import { generateItemFromWeightedList, generateRandom, shuffleArray } from './utils';
 import { Basket } from './gameObjects/Basket';
 import { Ingredient } from './gameObjects/Ingredient';
 import { generateUUID } from 'three/src/math/MathUtils';
 import { Vector3 as RVector3 } from '@dimforge/rapier3d-compat';
 import { RapierRigidBody, useRapier } from '@react-three/rapier';
 
-interface IScene extends Omit<IGameState, 'startGame' | 'pauseGame'> {
+interface IScene extends Omit<IGameState, 'startGame' | 'pauseGame' | 'timer'> {
   // resizeScene: () => void;
   // handleMenuClick: (action: MenuAction) => void;
   // moveBasket: (direction: BasketDirection) => void;
@@ -43,12 +43,12 @@ export const Scene: React.FC<IScene> = props => {
         return;
       }
 
-      if (levelInventory.length === 0) {
+      if (props.gameState === 'gameOver') {
         return clearInterval(interval);
       }
 
       if (props.gameState === 'playing') {
-        addIngredientToScene();
+        addIngredientToScene(generateItemFromWeightedList(props.currentLevel.inventory));
       }
     }, 1500);
     return () => clearInterval(interval);
@@ -86,9 +86,10 @@ export const Scene: React.FC<IScene> = props => {
   const setUpGame = () => {
     cameraPosition.current = new THREE.Vector3(0, 0, LEVEL_Z_INDEX + CAMERA_Z_OFFSET);
     let updatedLevelInventory = levelInventory;
-    for (var i in props.currentLevel.inventory) {
-      const copies = copyStringIntoTypedArray<IngredientName>(i, props.currentLevel.inventory[i]);
-      updatedLevelInventory = [...updatedLevelInventory, ...copies];
+
+    for (var [key, value] of props.currentLevel.inventory.entries()) {
+      // const copies = copyStringIntoTypedArray<IngredientName>(i, props.currentLevel.inventory[i]);
+      // updatedLevelInventory = [...updatedLevelInventory, ...copies];
     }
 
     setLevelInventory(shuffleArray(updatedLevelInventory));
@@ -139,11 +140,11 @@ export const Scene: React.FC<IScene> = props => {
 
   // const pauseGame = () => {};
 
-  const addIngredientToScene = () => {
+  const addIngredientToScene = (ingredientName: IngredientName) => {
     const gamePanelBoundaries = gamePanelBoundariesRef.current;
     const updatedLevelInventory = levelInventory;
 
-    const ingredient = generateIngredient(updatedLevelInventory.pop(), gamePanelBoundaries);
+    const ingredient = generateIngredient(ingredientName, gamePanelBoundaries);
     // const updatedFallingIngredients = fallingIngredients;
     // updatedFallingIngredients.push(ingredient);
     setFallingIngredients(prevIngredients => [...prevIngredients, ingredient]);

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { levels } from './data/constants';
 import { GameState as State, Level, IngredientName, LevelName } from './data/types';
 
@@ -9,6 +9,7 @@ interface Props {
 export interface IGameState {
   gameState: State;
   currentLevel: Level;
+  timer: number;
   startGame: (level: LevelName) => void;
   pauseGame: () => void;
   updateIngredientsCaught: (ingredient: IngredientName) => void;
@@ -18,7 +19,32 @@ export const GameState: React.FC<Props> = ({ children }) => {
   const [gameState, setGameState] = useState<State>('startMenu');
   const [ingredientsCaught, setIngredientsCaught] = useState<Partial<Record<IngredientName, number>>>({});
   const [currentLevel, setCurrentLevel] = useState<Level>();
-  //   const [timer, setTimer] = useState<number>(currentLevel.timer);
+  const [timer, setTimer] = useState<number>(0);
+
+  useEffect(() => {
+    if (gameState === 'startingGame') {
+      setTimer(currentLevel.timer);
+    }
+
+    let interval = setInterval(() => {
+      if (gameState === 'paused' || gameState === 'gameOver') {
+        return clearInterval(interval);
+      }
+
+      if (gameState === 'playing' && timer === 0) {
+        endGame();
+        return clearInterval(interval);
+      }
+
+      if (gameState === 'playing' && timer !== 0) {
+        setTimer(timer => timer - 1);
+      }
+    }, 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [gameState, timer]);
 
   const startGame = (levelName: LevelName) => {
     setGameState('startingGame');
@@ -27,8 +53,6 @@ export const GameState: React.FC<Props> = ({ children }) => {
       setGameState('playing');
       return clearInterval(interval);
     }, 500);
-    checkForLevelProgress();
-    // const groceryList = currentLevel.groceryList;
   };
 
   const pauseGame = () => {
@@ -40,6 +64,7 @@ export const GameState: React.FC<Props> = ({ children }) => {
   };
 
   const endGame = () => {
+    console.log('gameOver');
     setGameState('gameOver');
   };
 
@@ -62,6 +87,7 @@ export const GameState: React.FC<Props> = ({ children }) => {
     pauseGame,
     gameState,
     currentLevel,
+    timer,
     updateIngredientsCaught,
   });
 };

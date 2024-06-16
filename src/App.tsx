@@ -2,68 +2,32 @@ import { GameState as GameStateContainer } from './GameState';
 import { Scene } from './Scene';
 import { Canvas } from '@react-three/fiber';
 import { CAMERA_Z_OFFSET, MENU_Z_INDEX } from './data/constants';
-import { GameState, LevelName } from './data/types';
-import { Suspense } from 'react';
+// import { Suspense } from 'react';
 import { Physics } from '@react-three/rapier';
-
-interface UIProps {
-  startGame: (level: LevelName) => void;
-  pauseGame: () => void;
-  gameState: GameState;
-}
-
-const UI: React.FC<UIProps> = props => (
-  <div id="ui">
-    {props.gameState === 'startMenu' && (
-      <div id="startMenu">
-        DROP CATCH KITCHEN!
-        <button id="playButton" onClick={() => props.startGame('level_1')}>
-          PLAY
-        </button>
-      </div>
-    )}
-    {props.gameState !== 'startMenu' && (
-      <div id="gameMenu">
-        <button id="pauseButton" onClick={() => props.pauseGame()}>
-          {props.gameState === 'paused' ? 'PLAY' : 'PAUSE'}
-        </button>
-        <div></div>
-      </div>
-    )}
-  </div>
-);
+import { UI } from './UI';
 
 const App: React.FC = () => {
-  //   window.onload = () => {
-  //     window.addEventListener('resize', scene.resizeScene, false);
-  //     document.addEventListener('keydown', event => scene.moveBasket(getDirectionFromKey(event)), false);
-  //     window.addEventListener;
-  //   };
-
-  // const startCameraPosition = [0, 0, MENU_Z_INDEX + CAMERA_Z_OFFSET];
-  // const levelCameraPosition = [0, 0, LEVEL_Z_INDEX + CAMERA_Z_OFFSET];
-
   return (
     <>
       <GameStateContainer>
-        {({ currentLevel, pauseGame, startGame, gameState, updateIngredientsCaught }) => (
+        {({ currentLevel, pauseGame, startGame, gameState, updateIngredientsCaught, timer }) => (
           <>
-            <UI startGame={startGame} pauseGame={pauseGame} gameState={gameState} />
+            <UI startGame={startGame} pauseGame={pauseGame} gameState={gameState} timer={timer} />
             <Canvas
               camera={{
                 fov: 75,
                 position: [0, 0, MENU_Z_INDEX + CAMERA_Z_OFFSET],
               }}
             >
-              <Suspense>
-                <Physics debug paused={gameState === 'paused'}>
-                  <Scene
-                    gameState={gameState}
-                    currentLevel={currentLevel}
-                    updateIngredientsCaught={updateIngredientsCaught}
-                  />
-                </Physics>
-              </Suspense>
+              {/* <Suspense> */}
+              <Physics debug paused={gameState === 'paused' || gameState === 'gameOver'}>
+                <Scene
+                  gameState={gameState}
+                  currentLevel={currentLevel}
+                  updateIngredientsCaught={updateIngredientsCaught}
+                />
+              </Physics>
+              {/* </Suspense> */}
             </Canvas>
           </>
         )}

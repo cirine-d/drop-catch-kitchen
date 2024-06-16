@@ -13,15 +13,19 @@ export const colours = {
 export const ingredientsDictionary = {
   strawberry: {
     color: colours.RED,
+    picture: 'assets/ingredients/strawberry.png',
   },
   banana: {
     color: colours.YELLOW,
+    picture: 'assets/ingredients/banana.png',
   },
   apple: {
     color: colours.GREEN,
+    picture: 'assets/ingredients/apple.png',
   },
   milk: {
     color: colours.GREIGE,
+    picture: 'assets/ingredients/milk.png',
   },
 };
 
@@ -55,16 +59,17 @@ export const levels = {
       ['strawberry', 0.1],
       ['milk', 0.9],
     ]),
-    timer: 2,
+    timer: 20,
   },
 };
 
 export const MENU_Z_INDEX = 8;
 export const LEVEL_Z_INDEX = 0;
 export const SCALE_DIVIDER = 150;
-export const CAMERA_Z_OFFSET = 4;
+export const CAMERA_Z_OFFSET = 5;
 
 export const GAME_PANEL = 'GamePanel';
+export const MENU_PANEL = 'MenuPanel';
 
 //InteractionGroups
 export const BASKET_BOUNDS = 0;

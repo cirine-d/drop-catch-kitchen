@@ -3,7 +3,7 @@ import { useThree, useLoader, useFrame } from '@react-three/fiber';
 import { OrbitControls, useBounds } from '@react-three/drei';
 import { useEffect, useRef, useState } from 'react';
 import { GameState, IngredientName } from './data/types';
-import { CAMERA_Z_OFFSET, GAME_PANEL, LEVEL_Z_INDEX, MENU_Z_INDEX, colours } from './data/constants';
+import { CAMERA_Z_OFFSET, GAME_PANEL, LEVEL_Z_INDEX, MENU_PANEL, MENU_Z_INDEX, colours } from './data/constants';
 import { IGameState } from './GameState';
 import { TextureLoader } from 'three/src/loaders/TextureLoader';
 import { generateItemFromWeightedList, generateRandom, shuffleArray } from './utils';
@@ -57,7 +57,7 @@ export const Scene: React.FC<IScene> = props => {
   const MenuPanel = () => {
     const menuTexture = useLoader(TextureLoader, 'assets/startMenuPicture.jpg');
     return (
-      <mesh name="MenuPanel" position={[0, 0, MENU_Z_INDEX]}>
+      <mesh name={MENU_PANEL} position={[0, 0, MENU_Z_INDEX]}>
         <planeGeometry args={[scene.viewport.width / 3, scene.viewport.height / 3]} />
         <meshBasicMaterial map={menuTexture} />
       </mesh>

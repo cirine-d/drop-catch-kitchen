@@ -1,10 +1,11 @@
 import * as THREE from 'three';
 import { BasketDirection, Ingredient, IngredientName } from '../data/types';
-import { BASKET_BOUNDS, BASKET_SENSOR, INGREDIENTS, colours } from '../data/constants';
+import { BASKET_BOUNDS, BASKET_SENSOR, INGREDIENTS, colours, ingredientsDictionary } from '../data/constants';
 import { getDirectionFromKey, isIngredientName } from '../utils';
 import { useEffect, useRef, useState } from 'react';
 import { CuboidCollider, CylinderCollider, RapierRigidBody, RigidBody, interactionGroups } from '@react-three/rapier';
 import RAPIER from '@dimforge/rapier3d-compat';
+import { IngredientSprite } from './IngredientSprite';
 
 interface Props {
   startPosition: RAPIER.Vector3;
@@ -19,6 +20,7 @@ interface Props {
 export const Basket: React.FC<Props> = (props: Props) => {
   const basketRef = useRef<RapierRigidBody>();
   const [impulse, setImpulse] = useState<number>(0);
+  const [content, setContent] = useState<IngredientName[]>([]);
 
   // const ref = useRef<THREE.Mesh>();
   // const [contents, setContents] = useState<HashMap<number>>({});
@@ -44,10 +46,11 @@ export const Basket: React.FC<Props> = (props: Props) => {
   const handleIngredientCaught = (ingredient: THREE.Object3D, rigidBodyHandle: number) => {
     if (isIngredientName(ingredient.name)) {
       props.updateIngredientsCaught(ingredient.name);
+      setContent([...content, ingredient.name]);
     }
     props.removeIngredientFromScene(ingredient.id, rigidBodyHandle);
   };
-
+  console.log(content);
   useEffect(() => {
     // if (props.startPosition && basketRef.current) {
     //   basketRef.current.setNextKinematicTranslation(props.startPosition);
@@ -107,6 +110,14 @@ export const Basket: React.FC<Props> = (props: Props) => {
           <circleGeometry args={[1, 6]} />
           <meshBasicMaterial color={colours.BROWN} />
         </mesh>
+        {/* Sprites to display basket content */}
+        {content.length > 0 && (
+          <group name="BasketContentDisplay">
+            {content[0] !== undefined && <IngredientSprite position={[-0.6, 0.3, 0.8]} ingredientName={content[0]} />}
+            {content[1] !== undefined && <IngredientSprite position={[0, 0.3, 1]} ingredientName={content[1]} />}
+            {content[2] !== undefined && <IngredientSprite position={[0.6, 0.3, 0.8]} ingredientName={content[2]} />}
+          </group>
+        )}
       </group>
     );
   };

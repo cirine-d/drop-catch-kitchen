@@ -1,6 +1,6 @@
+import { TextureLoader } from 'three';
 import { SpriteProps, useLoader } from '@react-three/fiber';
 import { IngredientName } from '../data/types';
-import { TextureLoader, Vector3 } from 'three';
 import { ingredientsDictionary } from '../data/constants';
 
 interface Props extends SpriteProps {

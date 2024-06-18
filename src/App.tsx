@@ -1,9 +1,8 @@
-import { GameState as GameStateContainer } from './GameState';
-import { Scene } from './Scene';
-import { Canvas } from '@react-three/fiber';
-import { CAMERA_Z_OFFSET, MENU_Z_INDEX } from './data/constants';
-// import { Suspense } from 'react';
 import { Physics } from '@react-three/rapier';
+import { Canvas } from '@react-three/fiber';
+import { GameState as GameStateContainer } from './GameState';
+import { CAMERA_Z_OFFSET, MENU_Z_INDEX } from './data/constants';
+import { Scene } from './Scene';
 import { UI } from './UI';
 
 const App: React.FC = () => {
@@ -19,7 +18,6 @@ const App: React.FC = () => {
                 position: [0, 0, MENU_Z_INDEX + CAMERA_Z_OFFSET],
               }}
             >
-              {/* <Suspense> */}
               <Physics debug paused={gameState === 'paused' || gameState === 'gameOver'}>
                 <Scene
                   gameState={gameState}
@@ -27,7 +25,6 @@ const App: React.FC = () => {
                   updateIngredientsCaught={updateIngredientsCaught}
                 />
               </Physics>
-              {/* </Suspense> */}
             </Canvas>
           </>
         )}

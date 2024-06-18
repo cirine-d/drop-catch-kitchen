@@ -1,6 +1,5 @@
 import { RigidBody, interactionGroups } from '@react-three/rapier';
 import { INGREDIENTS, ingredientsDictionary } from '../data/constants';
-import { useRef } from 'react';
 
 interface Props {
   name: string;

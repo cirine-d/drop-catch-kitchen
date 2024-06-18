@@ -1,10 +1,10 @@
-import * as THREE from 'three';
-import { BasketDirection, Ingredient, IngredientName } from '../data/types';
-import { BASKET_BOUNDS, BASKET_SENSOR, INGREDIENTS, colours, ingredientsDictionary } from '../data/constants';
-import { getDirectionFromKey, isIngredientName } from '../utils';
 import { useEffect, useRef, useState } from 'react';
-import { CuboidCollider, CylinderCollider, RapierRigidBody, RigidBody, interactionGroups } from '@react-three/rapier';
+import * as THREE from 'three';
 import RAPIER from '@dimforge/rapier3d-compat';
+import { CuboidCollider, CylinderCollider, RapierRigidBody, RigidBody, interactionGroups } from '@react-three/rapier';
+import { BasketDirection, Ingredient, IngredientName } from '../data/types';
+import { BASKET_BOUNDS, BASKET_SENSOR, INGREDIENTS, colours } from '../data/constants';
+import { getDirectionFromKey, isIngredientName } from '../utils';
 import { IngredientSprite } from './IngredientSprite';
 
 interface Props {
@@ -22,27 +22,6 @@ export const Basket: React.FC<Props> = (props: Props) => {
   const [impulse, setImpulse] = useState<number>(0);
   const [content, setContent] = useState<IngredientName[]>([]);
 
-  // const ref = useRef<THREE.Mesh>();
-  // const [contents, setContents] = useState<HashMap<number>>({});
-  // const [contentIds, setContentIds] = useState<number[]>([]);
-
-  // const handleIngredients = (id: string) => {
-  //   // const newContentIds = [...contentIds];
-  //   // if (contentIds.includes(ingredient.object.id)) {
-  //   //   return;
-  //   // }
-
-  //   // if (contents[ingredient.name]) {
-  //   //   contents[ingredient.name] += 1;
-  //   // } else {
-  //   //   contents[ingredient.name] = 1;
-  //   // }
-
-  //   // setContentIds([...newContentIds, ingredient.object.id]);
-
-  //   console.log();
-  // };
-
   const handleIngredientCaught = (ingredient: THREE.Object3D, rigidBodyHandle: number) => {
     if (isIngredientName(ingredient.name)) {
       props.updateIngredientsCaught(ingredient.name);
@@ -52,9 +31,6 @@ export const Basket: React.FC<Props> = (props: Props) => {
   };
   console.log(content);
   useEffect(() => {
-    // if (props.startPosition && basketRef.current) {
-    //   basketRef.current.setNextKinematicTranslation(props.startPosition);
-    // }
     document.addEventListener('keydown', event => moveBasket(getDirectionFromKey(event)), false);
     document.addEventListener('keyup', event => setImpulse(0), false);
   }, []);

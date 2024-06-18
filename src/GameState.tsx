@@ -68,9 +68,9 @@ export const GameState: React.FC<Props> = ({ children }) => {
     setGameState('gameOver');
   };
 
-  const checkForLevelProgress = () => {
-    // console.log(currentLevel);
-  };
+  // const checkForLevelProgress = () => {
+
+  // };
 
   const updateIngredientsCaught = (ingredient: IngredientName) => {
     const updated = {
@@ -81,6 +81,8 @@ export const GameState: React.FC<Props> = ({ children }) => {
     setIngredientsCaught(updated);
   };
   console.log(ingredientsCaught);
+
+  // OrderQueue needs to live here
 
   return children({
     startGame,

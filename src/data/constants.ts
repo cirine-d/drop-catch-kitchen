@@ -36,6 +36,7 @@ export const ordersDictionary = {
       banana: 2,
       milk: 1,
     },
+    //appliance
   },
   strawberryJuice: {
     price: 4,
@@ -53,6 +54,7 @@ export const levels = {
       ['bananaSmoothie', 0.8],
       ['strawberryJuice', 0.4],
     ]),
+    // remove this from constants, have the game state or scene generate this
     inventory: new Map<IngredientName, number>([
       ['banana', 0.1],
       ['apple', 0.1],

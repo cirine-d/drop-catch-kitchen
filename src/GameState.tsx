@@ -1,95 +1,93 @@
-import { useEffect, useRef, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { levels } from './data/constants';
 import { GameState as State, Level, IngredientName, LevelName } from './data/types';
 
-interface Props {
-  children: (props: IGameState) => React.ReactElement | null;
-}
-
-export interface IGameState {
+interface IGameStateContext {
   gameState: State;
-  currentLevel: Level;
+  currentLevel: Level | undefined;
   timer: number;
   startGame: (level: LevelName) => void;
   pauseGame: () => void;
   updateIngredientsCaught: (ingredient: IngredientName) => void;
 }
 
-export const GameState: React.FC<Props> = ({ children }) => {
+const GameStateContext = createContext<IGameStateContext | undefined>(undefined);
+
+export const GameStateProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [gameState, setGameState] = useState<State>('startMenu');
   const [ingredientsCaught, setIngredientsCaught] = useState<Partial<Record<IngredientName, number>>>({});
   const [currentLevel, setCurrentLevel] = useState<Level>();
   const [timer, setTimer] = useState<number>(0);
 
   useEffect(() => {
-    if (gameState === 'startingGame') {
+    let interval;
+
+    if (gameState === 'startingGame' && currentLevel) {
       setTimer(currentLevel.timer);
     }
 
-    let interval = setInterval(() => {
-      if (gameState === 'paused' || gameState === 'gameOver') {
-        return clearInterval(interval);
-      }
-
-      if (gameState === 'playing' && timer === 0) {
-        endGame();
-        return clearInterval(interval);
-      }
-
-      if (gameState === 'playing' && timer !== 0) {
-        setTimer(timer => timer - 1);
-      }
-    }, 1000);
+    if (gameState === 'playing') {
+      interval = setInterval(() => {
+        if (timer > 0) {
+          setTimer(prev => prev - 1);
+        } else {
+          endGame();
+        }
+      }, 1000);
+    }
 
     return () => {
-      clearInterval(interval);
+      if (interval) clearInterval(interval);
     };
-  }, [gameState, timer]);
+  }, [gameState, timer, currentLevel]);
 
-  const startGame = (levelName: LevelName) => {
+  const startGame = useCallback((levelName: LevelName) => {
     setGameState('startingGame');
-    setCurrentLevel(levels[levelName]);
-    const interval = setInterval(() => {
+    const level = levels[levelName];
+    setCurrentLevel(level);
+
+    setTimeout(() => {
       setGameState('playing');
-      return clearInterval(interval);
     }, 500);
-  };
+  }, []);
 
-  const pauseGame = () => {
-    if (gameState !== 'paused') {
-      setGameState('paused');
-    } else {
-      setGameState('playing');
-    }
-  };
+  const pauseGame = useCallback(() => {
+    setGameState(prevState => (prevState === 'paused' ? 'playing' : 'paused'));
+  }, []);
 
-  const endGame = () => {
+  const endGame = useCallback(() => {
     console.log('gameOver');
     setGameState('gameOver');
-  };
+  }, []);
 
-  // const checkForLevelProgress = () => {
-
-  // };
-
-  const updateIngredientsCaught = (ingredient: IngredientName) => {
-    const updated = {
-      ...ingredientsCaught,
-      [ingredient]: ingredientsCaught[ingredient] ? ++ingredientsCaught[ingredient] : 1,
-    };
-
-    setIngredientsCaught(updated);
-  };
+  const updateIngredientsCaught = useCallback((ingredient: IngredientName) => {
+    setIngredientsCaught(prev => ({
+      ...prev,
+      [ingredient]: (prev[ingredient] || 0) + 1,
+    }));
+  }, []);
   console.log(ingredientsCaught);
 
-  // OrderQueue needs to live here
+  return (
+    <GameStateContext.Provider
+      value={{
+        gameState,
+        currentLevel,
+        timer,
+        startGame,
+        pauseGame,
+        updateIngredientsCaught,
+      }}
+    >
+      {children}
+    </GameStateContext.Provider>
+  );
+};
 
-  return children({
-    startGame,
-    pauseGame,
-    gameState,
-    currentLevel,
-    timer,
-    updateIngredientsCaught,
-  });
+export const useGameState = (): IGameStateContext => {
+  const context = useContext(GameStateContext);
+  if (!context) {
+    throw new Error('useGameState must be used within a GameStateProvider');
+  }
+  return context;
 };

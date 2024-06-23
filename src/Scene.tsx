@@ -1,23 +1,22 @@
 import * as THREE from 'three';
 import { useEffect, useRef, useState } from 'react';
 import { generateUUID } from 'three/src/math/MathUtils';
-import { useRapier } from '@react-three/rapier';
+import { Physics, useRapier } from '@react-three/rapier';
 import { OrbitControls } from '@react-three/drei';
 import { TextureLoader } from 'three/src/loaders/TextureLoader';
 import { useThree, useLoader, useFrame } from '@react-three/fiber';
 import { Vector3 as RVector3 } from '@dimforge/rapier3d-compat';
-import { GameState, IngredientName } from './data/types';
+import { IngredientName } from './data/types';
 import { CAMERA_Z_OFFSET, GAME_PANEL, LEVEL_Z_INDEX, MENU_PANEL, MENU_Z_INDEX, colours } from './data/constants';
-import { IGameState } from './GameState';
 import { generateItemFromWeightedList, generateRandom } from './utils';
 import { Basket } from './gameObjects/Basket';
 import { Ingredient } from './gameObjects/Ingredient';
+import { useGameState } from './GameState';
 
-interface IScene extends Omit<IGameState, 'startGame' | 'pauseGame' | 'timer'> {}
-
-export const Scene: React.FC<IScene> = props => {
+export const Scene: React.FC = () => {
   const scene = useThree();
   const physicsWorld = useRapier();
+  const { gameState, currentLevel } = useGameState();
   const [fallingIngredients, setFallingIngredients] = useState<JSX.Element[]>([]);
   const cameraPosition = useRef(scene.camera.position);
   const gamePanelBoundariesRef = useRef<any>();
@@ -27,25 +26,25 @@ export const Scene: React.FC<IScene> = props => {
       gamePanelBoundariesRef.current = getGamePanelBoundaries();
     }
 
-    if (props.gameState === 'startingGame') {
+    if (gameState === 'startingGame') {
       setUpGame();
     }
 
     let interval = setInterval(() => {
-      if (props.gameState === 'paused') {
+      if (gameState === 'paused') {
         return;
       }
 
-      if (props.gameState === 'gameOver') {
+      if (gameState === 'gameOver') {
         return clearInterval(interval);
       }
 
-      if (props.gameState === 'playing') {
-        addIngredientToScene(generateItemFromWeightedList(props.currentLevel.inventory));
+      if (gameState === 'playing') {
+        addIngredientToScene(generateItemFromWeightedList(currentLevel.inventory));
       }
     }, 1500);
     return () => clearInterval(interval);
-  }, [props.gameState]);
+  }, [gameState]);
 
   const MenuPanel = () => {
     const menuTexture = useLoader(TextureLoader, 'assets/startMenuPicture.jpg');
@@ -105,11 +104,11 @@ export const Scene: React.FC<IScene> = props => {
   });
 
   return (
-    <>
+    <Physics debug paused={gameState !== 'playing'}>
       <MenuPanel />
       <GameScenePanel />
       {fallingIngredients.map(ingredient => ingredient)}
-      {props.gameState !== 'startMenu' && (
+      {gameState !== 'startMenu' && (
         <Basket
           startPosition={
             new RVector3(
@@ -122,12 +121,13 @@ export const Scene: React.FC<IScene> = props => {
             left: gamePanelBoundariesRef.current.left,
             right: gamePanelBoundariesRef.current.right,
           }}
-          updateIngredientsCaught={props.updateIngredientsCaught}
           removeIngredientFromScene={removeIngredientFromScene}
         />
       )}
+      {/* development tools */}
       <OrbitControls />
       <axesHelper args={[1000000]} />
-    </>
+      {/* development tools */}
+    </Physics>
   );
 };

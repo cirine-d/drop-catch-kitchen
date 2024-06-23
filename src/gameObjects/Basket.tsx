@@ -6,6 +6,7 @@ import { BasketDirection, Ingredient, IngredientName } from '../data/types';
 import { BASKET_BOUNDS, BASKET_SENSOR, INGREDIENTS, colours } from '../data/constants';
 import { getDirectionFromKey, isIngredientName } from '../utils';
 import { IngredientSprite } from './IngredientSprite';
+import { useGameState } from '../GameState';
 
 interface Props {
   startPosition: RAPIER.Vector3;
@@ -13,18 +14,18 @@ interface Props {
     right: number;
     left: number;
   };
-  updateIngredientsCaught?: (ingredient: IngredientName) => void;
   removeIngredientFromScene?: (ingredientId: number, ingredientHandle: number) => void;
 }
 
 export const Basket: React.FC<Props> = (props: Props) => {
   const basketRef = useRef<RapierRigidBody>();
+  const { updateIngredientsCaught } = useGameState();
   const [impulse, setImpulse] = useState<number>(0);
   const [content, setContent] = useState<IngredientName[]>([]);
 
   const handleIngredientCaught = (ingredient: THREE.Object3D, rigidBodyHandle: number) => {
     if (isIngredientName(ingredient.name)) {
-      props.updateIngredientsCaught(ingredient.name);
+      updateIngredientsCaught(ingredient.name);
       setContent([...content, ingredient.name]);
     }
     props.removeIngredientFromScene(ingredient.id, rigidBodyHandle);

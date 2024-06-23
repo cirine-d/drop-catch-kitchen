@@ -1,29 +1,23 @@
-import { GameState, LevelName } from './data/types';
+import { useGameState } from './GameState';
 
-interface UIProps {
-  startGame: (level: LevelName) => void;
-  pauseGame: () => void;
-  gameState: GameState;
-  timer: number;
-}
-
-export const UI: React.FC<UIProps> = props => {
+export const UI: React.FC = () => {
+  const { startGame, pauseGame, gameState, timer } = useGameState();
   return (
     <div id="ui">
-      {props.gameState === 'startMenu' && (
+      {gameState === 'startMenu' && (
         <div id="startMenu">
           DROP CATCH KITCHEN!
-          <button id="playButton" onClick={() => props.startGame('level_1')}>
+          <button id="playButton" onClick={() => startGame('level_1')}>
             PLAY
           </button>
         </div>
       )}
-      {props.gameState !== 'startMenu' && (
+      {gameState !== 'startMenu' && (
         <div id="gameMenu">
-          <button id="pauseButton" onClick={() => props.pauseGame()}>
-            {props.gameState === 'paused' ? 'PLAY' : 'PAUSE'}
+          <button id="pauseButton" onClick={() => pauseGame()}>
+            {gameState === 'paused' ? 'PLAY' : 'PAUSE'}
           </button>
-          {`${props.timer} seconds left`}
+          {`${timer} seconds left`}
           <div></div>
         </div>
       )}

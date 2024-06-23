@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { useEffect, useRef, useState } from 'react';
 import { generateUUID } from 'three/src/math/MathUtils';
-import { Physics, useRapier } from '@react-three/rapier';
+import { useRapier } from '@react-three/rapier';
 import { OrbitControls } from '@react-three/drei';
 import { TextureLoader } from 'three/src/loaders/TextureLoader';
 import { useThree, useLoader, useFrame } from '@react-three/fiber';
@@ -11,12 +11,12 @@ import { CAMERA_Z_OFFSET, GAME_PANEL, LEVEL_Z_INDEX, MENU_PANEL, MENU_Z_INDEX, c
 import { generateItemFromWeightedList, generateRandom } from './utils';
 import { Basket } from './gameObjects/Basket';
 import { Ingredient } from './gameObjects/Ingredient';
-import { useGameState } from './GameState';
+import { useGameState } from './GameState/GameState';
 
 export const Scene: React.FC = () => {
   const scene = useThree();
   const physicsWorld = useRapier();
-  const { gameState, currentLevel } = useGameState();
+  const { gameState, inventory } = useGameState();
   const [fallingIngredients, setFallingIngredients] = useState<JSX.Element[]>([]);
   const cameraPosition = useRef(scene.camera.position);
   const gamePanelBoundariesRef = useRef<any>();
@@ -40,7 +40,7 @@ export const Scene: React.FC = () => {
       }
 
       if (gameState === 'playing') {
-        addIngredientToScene(generateItemFromWeightedList(currentLevel.inventory));
+        addIngredientToScene(generateItemFromWeightedList(inventory));
       }
     }, 1500);
     return () => clearInterval(interval);
@@ -104,7 +104,7 @@ export const Scene: React.FC = () => {
   });
 
   return (
-    <Physics debug paused={gameState !== 'playing'}>
+    <>
       <MenuPanel />
       <GameScenePanel />
       {fallingIngredients.map(ingredient => ingredient)}
@@ -128,6 +128,6 @@ export const Scene: React.FC = () => {
       <OrbitControls />
       <axesHelper args={[1000000]} />
       {/* development tools */}
-    </Physics>
+    </>
   );
 };

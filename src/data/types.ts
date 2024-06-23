@@ -23,7 +23,6 @@ export interface Order {
 
 export interface Level {
   menu: Map<OrderName, number>;
-  inventory: Map<IngredientName, number>;
   profitGoal: number;
   timer: number; //minutes
 }

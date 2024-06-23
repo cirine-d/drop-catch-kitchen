@@ -1,4 +1,4 @@
-import { useGameState } from './GameState';
+import { useGameState } from './GameState/GameState';
 
 export const UI: React.FC = () => {
   const { startGame, pauseGame, gameState, timer } = useGameState();

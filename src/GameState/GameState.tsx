@@ -1,23 +1,30 @@
-import { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { levels } from './data/constants';
-import { GameState as State, Level, IngredientName, LevelName } from './data/types';
+import { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
+import { levels } from '../data/constants';
+import { GameState as State, Level, IngredientName, LevelName } from '../data/types';
+import { generateWeightedInventoryFromMenu } from './utils';
 
 interface IGameStateContext {
   gameState: State;
   currentLevel: Level | undefined;
   timer: number;
+  inventory: Map<IngredientName, number> | undefined;
   startGame: (level: LevelName) => void;
   pauseGame: () => void;
-  updateIngredientsCaught: (ingredient: IngredientName) => void;
+  updateBasketContent: (ingredient: IngredientName) => void;
 }
 
 const GameStateContext = createContext<IGameStateContext | undefined>(undefined);
 
 export const GameStateProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [gameState, setGameState] = useState<State>('startMenu');
-  const [ingredientsCaught, setIngredientsCaught] = useState<Partial<Record<IngredientName, number>>>({});
+  const [basketContent, setBasketContent] = useState<Partial<Record<IngredientName, number>>>({});
   const [currentLevel, setCurrentLevel] = useState<Level>();
   const [timer, setTimer] = useState<number>(0);
+
+  const inventory = useMemo(
+    () => (currentLevel !== undefined ? generateWeightedInventoryFromMenu(currentLevel.menu) : undefined),
+    [currentLevel]
+  );
 
   useEffect(() => {
     let interval;
@@ -60,13 +67,13 @@ export const GameStateProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setGameState('gameOver');
   }, []);
 
-  const updateIngredientsCaught = useCallback((ingredient: IngredientName) => {
-    setIngredientsCaught(prev => ({
+  const updateBasketContent = useCallback((ingredient: IngredientName) => {
+    setBasketContent(prev => ({
       ...prev,
       [ingredient]: (prev[ingredient] || 0) + 1,
     }));
   }, []);
-  console.log(ingredientsCaught);
+  console.log(basketContent);
 
   return (
     <GameStateContext.Provider
@@ -74,9 +81,10 @@ export const GameStateProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         gameState,
         currentLevel,
         timer,
+        inventory,
         startGame,
         pauseGame,
-        updateIngredientsCaught,
+        updateBasketContent,
       }}
     >
       {children}

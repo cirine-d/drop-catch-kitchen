@@ -1,15 +1,21 @@
-import { useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
-import RAPIER from '@dimforge/rapier3d-compat';
-import { CuboidCollider, CylinderCollider, RapierRigidBody, RigidBody, interactionGroups } from '@react-three/rapier';
-import { BasketDirection, Ingredient, IngredientName } from '../data/types';
+import {
+  CuboidCollider,
+  CylinderCollider,
+  RapierRigidBody,
+  RigidBody,
+  Vector3Object,
+  interactionGroups,
+} from '@react-three/rapier';
+import { BasketDirection, IngredientName } from '../data/types';
 import { BASKET_BOUNDS, BASKET_SENSOR, INGREDIENTS, colours } from '../data/constants';
 import { getDirectionFromKey, isIngredientName } from '../utils';
 import { IngredientSprite } from './IngredientSprite';
 import { useGameState } from '../GameState/GameState';
 
 interface Props {
-  startPosition: RAPIER.Vector3;
+  startPosition: Vector3Object;
   gamePanelBoundaries: {
     right: number;
     left: number;
@@ -49,7 +55,7 @@ export const Basket: React.FC<Props> = (props: Props) => {
     }
   };
 
-  const Boundary = (boundaryProps: { position: 'left' | 'right' }) => {
+  const Boundary = memo((boundaryProps: { position: 'left' | 'right' }) => {
     const boundaryOffset = 0.7;
     return (
       <RigidBody
@@ -70,9 +76,9 @@ export const Basket: React.FC<Props> = (props: Props) => {
         />
       </RigidBody>
     );
-  };
+  });
 
-  const BasketMesh = () => {
+  const BasketMesh: React.FC = () => {
     const points = [];
     points.push(new THREE.Vector2(1, 0));
     points.push(new THREE.Vector2(1, 0.7)); // The widest point of the basket
@@ -117,7 +123,7 @@ export const Basket: React.FC<Props> = (props: Props) => {
           sensor
           onIntersectionEnter={payload => handleIngredientCaught(payload.rigidBodyObject, payload.rigidBody.handle)}
         />
-        {BasketMesh()}
+        <BasketMesh />
       </RigidBody>
       <Boundary position="right" />
     </>

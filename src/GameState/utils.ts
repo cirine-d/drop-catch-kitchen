@@ -1,5 +1,5 @@
 import { ordersDictionary } from '../data/constants';
-import { IngredientName, OrderName } from '../data/types';
+import { Appliance, ApplianceName, IngredientName, OrderName } from '../data/types';
 
 export const generateWeightedInventoryFromMenu = (menu: Map<OrderName, number>): Map<IngredientName, number> => {
   const weightedInventory: Map<IngredientName, number> = new Map();
@@ -30,4 +30,21 @@ export const generateWeightedInventoryFromMenu = (menu: Map<OrderName, number>):
   }
 
   return weightedInventory;
+};
+
+export const createAppliancesMap = (
+  menu: Map<OrderName, number>,
+  isStorageEnabled: boolean
+): Map<string, Appliance | undefined> => {
+  const appliancesMap = new Map<string, Appliance | undefined>();
+  const allAppliances = Array.from(menu).map(([orderName]) => ordersDictionary[orderName].appliance as ApplianceName);
+
+  if (isStorageEnabled) {
+    allAppliances.push('storage');
+  }
+
+  const applianceNames = [...new Set(allAppliances)];
+  applianceNames.forEach((name, index) => appliancesMap.set(`${name}-${index}`, undefined));
+
+  return appliancesMap;
 };

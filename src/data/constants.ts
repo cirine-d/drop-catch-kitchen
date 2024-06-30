@@ -29,17 +29,27 @@ export const ingredientsDictionary = {
   },
 };
 
+export const appliancesDictionary = {
+  blender: {
+    picture: 'assets/appliances/blender.png',
+  },
+  storage: {
+    picture: 'assets/appliances/storage.png',
+  },
+};
+
 export const ordersDictionary = {
   bananaSmoothie: {
     price: 5,
+    appliance: 'blender',
     recipe: {
       banana: 2,
       milk: 1,
     },
-    //appliance
   },
   strawberryJuice: {
     price: 4,
+    appliance: 'blender',
     recipe: {
       strawberry: 2,
       apple: 1,
@@ -55,6 +65,7 @@ export const levels = {
       ['strawberryJuice', 0.4],
     ]),
     timer: 20,
+    isStorageEnabled: true,
   },
 };
 
@@ -70,3 +81,4 @@ export const MENU_PANEL = 'MenuPanel';
 export const BASKET_BOUNDS = 0;
 export const BASKET_SENSOR = 1;
 export const INGREDIENTS = 2;
+export const APPLIANCES = 3;

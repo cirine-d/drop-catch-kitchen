@@ -1,9 +1,10 @@
 import { Canvas } from '@react-three/fiber';
 import { GameStateProvider, useGameState } from './GameState/GameState';
-import { CAMERA_Z_OFFSET, MENU_Z_INDEX } from './data/constants';
+import { CAMERA_Z_OFFSET, LEVEL_Z_INDEX, MENU_Z_INDEX } from './data/constants';
 import { Scene } from './Scene';
 import { UI } from './UI';
 import { Physics } from '@react-three/rapier';
+import { Suspense } from 'react';
 
 const App: React.FC = () => {
   const { gameState } = useGameState();
@@ -17,9 +18,13 @@ const App: React.FC = () => {
           position: [0, 0, MENU_Z_INDEX + CAMERA_Z_OFFSET],
         }}
       >
-        <Physics debug paused={gameState !== 'playing'}>
-          <Scene />
-        </Physics>
+        <ambientLight intensity={1.5} />
+        <pointLight position={[10, 10, LEVEL_Z_INDEX]} />
+        <Suspense>
+          <Physics debug paused={gameState !== 'playing'} colliders={false}>
+            <Scene />
+          </Physics>
+        </Suspense>
       </Canvas>
     </>
   );

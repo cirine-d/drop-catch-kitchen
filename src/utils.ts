@@ -1,5 +1,5 @@
-import { ingredientsDictionary } from './data/constants';
-import { IngredientName } from './data/types';
+import { appliancesDictionary, ingredientsDictionary } from './data/constants';
+import { ApplianceName, IngredientName } from './data/types';
 
 export const getDirectionFromKey = event => {
   switch (event.keyCode) {
@@ -30,7 +30,20 @@ export const generateItemFromWeightedList = <T>(weightedList: Map<T, number>): T
   }
 };
 
+export const getApplianceNameFromId = (id: string): ApplianceName => {
+  const name = id.split('-')[0];
+  if (!isApplianceName(name)) {
+    throw new Error('Appliance id does not contain valid appliance name');
+  }
+
+  return name;
+};
+
 //TYPEGUARDS
 export const isIngredientName = (value: string): value is IngredientName => {
   return Object.keys(ingredientsDictionary).includes(value);
+};
+
+export const isApplianceName = (value: string): value is ApplianceName => {
+  return Object.keys(appliancesDictionary).includes(value);
 };

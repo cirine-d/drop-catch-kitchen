@@ -5,18 +5,18 @@ import { useRapier } from '@react-three/rapier';
 import { OrbitControls } from '@react-three/drei';
 import { TextureLoader } from 'three/src/loaders/TextureLoader';
 import { useThree, useLoader, useFrame } from '@react-three/fiber';
-import { Vector3 as RVector3 } from '@dimforge/rapier3d-compat';
 import { IngredientName } from './data/types';
 import { CAMERA_Z_OFFSET, GAME_PANEL, LEVEL_Z_INDEX, MENU_PANEL, MENU_Z_INDEX, colours } from './data/constants';
 import { generateItemFromWeightedList, generateRandom } from './utils';
 import { Basket } from './gameObjects/Basket';
 import { Ingredient } from './gameObjects/Ingredient';
 import { useGameState } from './GameState/GameState';
+import AppliancesBar from './gameObjects/Appliances/AppliancesBar';
 
 export const Scene: React.FC = () => {
   const scene = useThree();
   const physicsWorld = useRapier();
-  const { gameState, inventory } = useGameState();
+  const { gameState, inventory, appliances } = useGameState();
   const [fallingIngredients, setFallingIngredients] = useState<JSX.Element[]>([]);
   const cameraPosition = useRef(scene.camera.position);
   const gamePanelBoundariesRef = useRef<any>();
@@ -111,7 +111,7 @@ export const Scene: React.FC = () => {
       {gameState !== 'startMenu' && (
         <Basket
           startPosition={
-            new RVector3(
+            new THREE.Vector3(
               gamePanelBoundariesRef.current.right,
               gamePanelBoundariesRef.current.bottom + 0.5,
               LEVEL_Z_INDEX
@@ -124,6 +124,9 @@ export const Scene: React.FC = () => {
           removeIngredientFromScene={removeIngredientFromScene}
         />
       )}
+      {appliances !== undefined ? (
+        <AppliancesBar appliances={appliances} boundariesRef={gamePanelBoundariesRef} />
+      ) : null}
       {/* development tools */}
       <OrbitControls />
       <axesHelper args={[1000000]} />

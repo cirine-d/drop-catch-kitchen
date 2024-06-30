@@ -1,16 +1,18 @@
 import { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import { levels } from '../data/constants';
-import { GameState as State, Level, IngredientName, LevelName } from '../data/types';
-import { generateWeightedInventoryFromMenu } from './utils';
+import { GameState as State, Level, IngredientName, LevelName, ApplianceName, Appliance } from '../data/types';
+import { createAppliancesMap, generateWeightedInventoryFromMenu } from './utils';
 
 interface IGameStateContext {
   gameState: State;
   currentLevel: Level | undefined;
   timer: number;
   inventory: Map<IngredientName, number> | undefined;
+  appliances: Map<string, Appliance | undefined> | undefined;
   startGame: (level: LevelName) => void;
   pauseGame: () => void;
   updateBasketContent: (ingredient: IngredientName) => void;
+  updateAppliances: (applianceId: string, appliance: Appliance) => void;
 }
 
 const GameStateContext = createContext<IGameStateContext | undefined>(undefined);
@@ -20,10 +22,22 @@ export const GameStateProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [basketContent, setBasketContent] = useState<Partial<Record<IngredientName, number>>>({});
   const [currentLevel, setCurrentLevel] = useState<Level>();
   const [timer, setTimer] = useState<number>(0);
+  const [appliances, setAppliances] = useState<IGameStateContext['appliances']>(undefined);
 
   const inventory = useMemo(
     () => (currentLevel !== undefined ? generateWeightedInventoryFromMenu(currentLevel.menu) : undefined),
     [currentLevel]
+  );
+
+  const updateAppliances = useCallback(
+    (applianceId: string, appliance: Appliance) => {
+      const updatedAppliances = appliances;
+      if (appliances !== undefined) {
+        updatedAppliances.set(applianceId, appliance);
+      }
+      setAppliances(updatedAppliances);
+    },
+    [appliances]
   );
 
   useEffect(() => {
@@ -31,6 +45,7 @@ export const GameStateProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     if (gameState === 'startingGame' && currentLevel) {
       setTimer(currentLevel.timer);
+      setAppliances(createAppliancesMap(currentLevel.menu, currentLevel.isStorageEnabled));
     }
 
     if (gameState === 'playing') {
@@ -82,9 +97,11 @@ export const GameStateProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         currentLevel,
         timer,
         inventory,
+        appliances,
         startGame,
         pauseGame,
         updateBasketContent,
+        updateAppliances,
       }}
     >
       {children}

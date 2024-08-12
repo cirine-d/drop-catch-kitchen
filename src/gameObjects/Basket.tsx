@@ -24,17 +24,23 @@ interface Props {
 }
 
 export const Basket: React.FC<Props> = (props: Props) => {
+  const { content, updateContent } = useGameState().basket;
   const basketRef = useRef<RapierRigidBody>();
-  const { updateBasketContent } = useGameState();
   const [impulse, setImpulse] = useState<number>(0);
-  const [content, setContent] = useState<IngredientName[]>([]);
+  const [contentDisplaySprites, setContentDisplaySprites] = useState<IngredientName[]>([]);
 
   const handleIngredientCaught = (ingredient: THREE.Object3D, rigidBodyHandle: number) => {
     if (isIngredientName(ingredient.name)) {
-      updateBasketContent(ingredient.name);
-      setContent([...content, ingredient.name]);
+      updateContent(ingredient.name);
+      updateContentDisplaySprites(ingredient.name);
     }
     props.removeIngredientFromScene(ingredient.id, rigidBodyHandle);
+  };
+
+  const updateContentDisplaySprites = (ingredient: IngredientName) => {
+    const updatedContentDisplaySprites = [...contentDisplaySprites];
+    updatedContentDisplaySprites.push(ingredient);
+    setContentDisplaySprites(updatedContentDisplaySprites);
   };
 
   useEffect(() => {
@@ -94,7 +100,7 @@ export const Basket: React.FC<Props> = (props: Props) => {
           <meshBasicMaterial color={colours.BROWN} />
         </mesh>
         {/* Sprites to display basket content */}
-        {content.length > 0 && (
+        {contentDisplaySprites.length > 0 && (
           <group name="BasketContentDisplay">
             {content[0] !== undefined && <IngredientSprite position={[-0.6, 0.3, 0.8]} ingredientName={content[0]} />}
             {content[1] !== undefined && <IngredientSprite position={[0, 0.3, 1]} ingredientName={content[1]} />}

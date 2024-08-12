@@ -35,7 +35,7 @@ export const generateWeightedInventoryFromMenu = (menu: Map<OrderName, number>):
 export const createAppliancesMap = (
   menu: Map<OrderName, number>,
   isStorageEnabled: boolean
-): Map<string, Appliance | undefined> => {
+): Map<string, Appliance> => {
   const appliancesMap = new Map<string, Appliance | undefined>();
   const allAppliances = Array.from(menu).map(([orderName]) => ordersDictionary[orderName].appliance as ApplianceName);
 
@@ -44,7 +44,16 @@ export const createAppliancesMap = (
   }
 
   const applianceNames = [...new Set(allAppliances)];
-  applianceNames.forEach((name, index) => appliancesMap.set(`${name}-${index}`, undefined));
+  applianceNames.forEach((name, index) => appliancesMap.set(`${name}-${index}`, createApplianceObject()));
 
   return appliancesMap;
+};
+
+const createApplianceObject = (): Appliance => {
+  return {
+    acceptedIngredients: ['apple', 'banana', 'strawberry', 'milk'],
+    content: {},
+    isCooking: false,
+    cookingTime: 3, //minutes
+  };
 };

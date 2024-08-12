@@ -43,5 +43,6 @@ export interface Appliance {
   content: Partial<Record<IngredientName, number>>;
   isCooking: boolean;
   cookingTime: number; //minutes
-  updateContent: (ingredients: IngredientName[]) => void;
+  updateContent?: (ingredients: IngredientName[]) => void;
+  setIsCooking?: (isCooking: boolean) => void;
 }

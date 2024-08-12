@@ -14,6 +14,7 @@ interface IGameStateContext {
   inventory: Map<IngredientName, number> | undefined;
   startGame: (level: LevelName) => void;
   pauseGame: () => void;
+  setActiveAppliance: (applianceId: string | undefined) => void;
 }
 
 const GameStateContext = createContext<IGameStateContext | undefined>(undefined);
@@ -24,13 +25,13 @@ export const GameStateProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [timer, setTimer] = useState<number>(0);
 
   const basket = useBasket();
-  const { appliances } = useAppliances(currentLevel);
+  const { appliances, activeAppliance, setActiveAppliance } = useAppliances(currentLevel);
 
   const inventory = useMemo(
     () => (currentLevel !== undefined ? generateWeightedInventoryFromMenu(currentLevel.menu) : undefined),
     [currentLevel]
   );
-
+  console.log(activeAppliance);
   useEffect(() => {
     let interval;
 
@@ -78,6 +79,7 @@ export const GameStateProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         gameState,
         basket,
         appliances,
+        setActiveAppliance,
         currentLevel,
         timer,
         inventory,

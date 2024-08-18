@@ -8,7 +8,7 @@ import {
   Vector3Object,
   interactionGroups,
 } from '@react-three/rapier';
-import { BasketDirection, IngredientName } from '../data/types';
+import { PlayerControlKeys, IngredientName } from '../data/types';
 import { BASKET_BOUNDS, BASKET_SENSOR, INGREDIENTS, colours } from '../data/constants';
 import { getDirectionFromKey, isIngredientName } from '../utils';
 import { IngredientSprite } from './IngredientSprite';
@@ -25,6 +25,7 @@ interface Props {
 
 export const Basket: React.FC<Props> = (props: Props) => {
   const { content, updateContent } = useGameState().basket;
+  const { activeAppliance } = useGameState();
   const basketRef = useRef<RapierRigidBody>();
   const [impulse, setImpulse] = useState<number>(0);
   const [contentDisplaySprites, setContentDisplaySprites] = useState<IngredientName[]>([]);
@@ -52,7 +53,7 @@ export const Basket: React.FC<Props> = (props: Props) => {
     basketRef.current.setLinvel({ x: impulse, y: 0, z: 0 }, true);
   }, [impulse]);
 
-  const moveBasket = (direction: BasketDirection) => {
+  const moveBasket = (direction: PlayerControlKeys) => {
     if (direction === 'left' && basketRef.current.translation().x >= props.gamePanelBoundaries.left) {
       return setImpulse(-5);
     }
@@ -89,6 +90,7 @@ export const Basket: React.FC<Props> = (props: Props) => {
     points.push(new THREE.Vector2(1, 0));
     points.push(new THREE.Vector2(1, 0.7)); // The widest point of the basket
     points.push(new THREE.Vector2(1, 0));
+
     return (
       <group name="Basket">
         <mesh>
@@ -99,12 +101,29 @@ export const Basket: React.FC<Props> = (props: Props) => {
           <circleGeometry args={[1, 6]} />
           <meshBasicMaterial color={colours.BROWN} />
         </mesh>
-        {/* Sprites to display basket content */}
         {contentDisplaySprites.length > 0 && (
           <group name="BasketContentDisplay">
-            {content[0] !== undefined && <IngredientSprite position={[-0.6, 0.3, 0.8]} ingredientName={content[0]} />}
-            {content[1] !== undefined && <IngredientSprite position={[0, 0.3, 1]} ingredientName={content[1]} />}
-            {content[2] !== undefined && <IngredientSprite position={[0.6, 0.3, 0.8]} ingredientName={content[2]} />}
+            {contentDisplaySprites[0] !== undefined && (
+              <IngredientSprite
+                position={[-0.6, 0.3, 0.8]}
+                ingredientName={contentDisplaySprites[0]}
+                isActive={activeAppliance?.acceptedIngredients.includes(contentDisplaySprites[0])}
+              />
+            )}
+            {contentDisplaySprites[1] !== undefined && (
+              <IngredientSprite
+                position={[0, 0.3, 1]}
+                ingredientName={contentDisplaySprites[1]}
+                isActive={activeAppliance?.acceptedIngredients.includes(contentDisplaySprites[1])}
+              />
+            )}
+            {contentDisplaySprites[2] !== undefined && (
+              <IngredientSprite
+                position={[0.6, 0.3, 0.8]}
+                ingredientName={contentDisplaySprites[2]}
+                isActive={activeAppliance?.acceptedIngredients.includes(contentDisplaySprites[2])}
+              />
+            )}
           </group>
         )}
       </group>

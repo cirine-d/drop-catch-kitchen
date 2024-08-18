@@ -113,7 +113,7 @@ export const Scene: React.FC = () => {
           startPosition={
             new THREE.Vector3(
               gamePanelBoundariesRef.current.right,
-              gamePanelBoundariesRef.current.bottom + 0.5,
+              gamePanelBoundariesRef.current.bottom + 1.3,
               LEVEL_Z_INDEX
             )
           }

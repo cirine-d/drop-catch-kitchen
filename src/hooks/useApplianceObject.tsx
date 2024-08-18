@@ -15,10 +15,9 @@ export const useApplianceObject = (appliance: Appliance): Appliance => {
   }, []);
 
   return {
+    ...appliance,
     content,
     isCooking,
-    cookingTime: appliance.cookingTime,
-    acceptedIngredients: appliance.acceptedIngredients,
     updateContent,
     setIsCooking,
   };

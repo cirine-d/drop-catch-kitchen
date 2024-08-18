@@ -20,7 +20,7 @@ const AppliancesBar: React.FC<Props> = props => {
           appliance={appliances.get(key)}
           position={[
             props.boundariesRef.current.left + 1 + Number(key.split('-')[1]) * 2,
-            props.boundariesRef.current.bottom,
+            props.boundariesRef.current.bottom + 0.5,
             LEVEL_Z_INDEX,
           ]}
         />

@@ -2,15 +2,15 @@ import { useEffect, useState } from 'react';
 import { Appliance, Level } from '../../data/types';
 import { createAppliancesMap } from '../utils';
 
-interface Appliances {
+export interface Appliances {
   appliances: Map<string, Appliance>;
-  activeAppliance: string;
-  setActiveAppliance: (applianceId: string | undefined) => void;
+  activeAppliance: Appliance;
+  setActiveAppliance: (appliance: Appliance | undefined) => void;
 }
 
 export const useAppliances = (currentLevel: Level): Appliances => {
   const [appliances, setAppliances] = useState<Map<string, Appliance>>(new Map<string, Appliance>());
-  const [activeAppliance, setActiveAppliance] = useState<string | undefined>(undefined);
+  const [activeAppliance, setActiveAppliance] = useState<Appliance | undefined>(undefined);
 
   useEffect(() => {
     if (currentLevel !== undefined) {

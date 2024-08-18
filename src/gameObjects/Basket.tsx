@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import {
   CuboidCollider,
@@ -8,11 +8,13 @@ import {
   Vector3Object,
   interactionGroups,
 } from '@react-three/rapier';
-import { PlayerControlKeys, IngredientName } from '../data/types';
+import { PlayerControls } from '../data/types';
 import { BASKET_BOUNDS, BASKET_SENSOR, INGREDIENTS, colours } from '../data/constants';
-import { getDirectionFromKey, isIngredientName } from '../utils';
+import { isAcceptedIngredient, isIngredientName } from '../utils';
 import { IngredientSprite } from './IngredientSprite';
 import { useGameState } from '../GameState/GameState';
+import { useKeyboardControls } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
 
 interface Props {
   startPosition: Vector3Object;
@@ -25,42 +27,40 @@ interface Props {
 
 export const Basket: React.FC<Props> = (props: Props) => {
   const { content, updateContent } = useGameState().basket;
-  const { activeAppliance } = useGameState();
+  const { activeAppliance, transferIngredientsFromBasket } = useGameState();
+  const leftPressed = useKeyboardControls<PlayerControls>(state => state.left);
+  const rightPressed = useKeyboardControls<PlayerControls>(state => state.right);
+  const downPressed = useKeyboardControls<PlayerControls>(state => state.down);
   const basketRef = useRef<RapierRigidBody>();
   const [impulse, setImpulse] = useState<number>(0);
-  const [contentDisplaySprites, setContentDisplaySprites] = useState<IngredientName[]>([]);
 
-  const handleIngredientCaught = (ingredient: THREE.Object3D, rigidBodyHandle: number) => {
-    if (isIngredientName(ingredient.name)) {
-      updateContent(ingredient.name);
-      updateContentDisplaySprites(ingredient.name);
-    }
-    props.removeIngredientFromScene(ingredient.id, rigidBodyHandle);
-  };
-
-  const updateContentDisplaySprites = (ingredient: IngredientName) => {
-    const updatedContentDisplaySprites = [...contentDisplaySprites];
-    updatedContentDisplaySprites.push(ingredient);
-    setContentDisplaySprites(updatedContentDisplaySprites);
-  };
-
-  useEffect(() => {
-    document.addEventListener('keydown', event => moveBasket(getDirectionFromKey(event)), false);
-    document.addEventListener('keyup', event => setImpulse(0), false);
-  }, []);
+  const handleIngredientCaught = useCallback(
+    (ingredient: THREE.Object3D, rigidBodyHandle: number) => {
+      if (isIngredientName(ingredient.name)) {
+        updateContent('adding', [ingredient.name]);
+      }
+      props.removeIngredientFromScene(ingredient.id, rigidBodyHandle);
+    },
+    [updateContent, props.removeIngredientFromScene]
+  );
 
   useEffect(() => {
     basketRef.current.setLinvel({ x: impulse, y: 0, z: 0 }, true);
   }, [impulse]);
 
-  const moveBasket = (direction: PlayerControlKeys) => {
-    if (direction === 'left' && basketRef.current.translation().x >= props.gamePanelBoundaries.left) {
+  useFrame(() => {
+    if (leftPressed && basketRef.current.translation().x >= props.gamePanelBoundaries.left) {
       return setImpulse(-5);
     }
-    if (direction === 'right' && basketRef.current.translation().x <= props.gamePanelBoundaries.right) {
+    if (rightPressed && basketRef.current.translation().x <= props.gamePanelBoundaries.right) {
       return setImpulse(5);
     }
-  };
+    if (downPressed) {
+      transferIngredientsFromBasket();
+    }
+
+    setImpulse(0);
+  });
 
   const Boundary = memo((boundaryProps: { position: 'left' | 'right' }) => {
     const boundaryOffset = 0.7;
@@ -101,27 +101,33 @@ export const Basket: React.FC<Props> = (props: Props) => {
           <circleGeometry args={[1, 6]} />
           <meshBasicMaterial color={colours.BROWN} />
         </mesh>
-        {contentDisplaySprites.length > 0 && (
+        {content.length > 0 && (
           <group name="BasketContentDisplay">
-            {contentDisplaySprites[0] !== undefined && (
+            {content[0] !== undefined && (
               <IngredientSprite
                 position={[-0.6, 0.3, 0.8]}
-                ingredientName={contentDisplaySprites[0]}
-                isActive={activeAppliance?.acceptedIngredients.includes(contentDisplaySprites[0])}
+                ingredientName={content[0]}
+                isActive={
+                  activeAppliance ? isAcceptedIngredient(activeAppliance?.acceptedIngredients, content[0]) : false
+                }
               />
             )}
-            {contentDisplaySprites[1] !== undefined && (
+            {content[1] !== undefined && (
               <IngredientSprite
                 position={[0, 0.3, 1]}
-                ingredientName={contentDisplaySprites[1]}
-                isActive={activeAppliance?.acceptedIngredients.includes(contentDisplaySprites[1])}
+                ingredientName={content[1]}
+                isActive={
+                  activeAppliance ? isAcceptedIngredient(activeAppliance?.acceptedIngredients, content[1]) : false
+                }
               />
             )}
-            {contentDisplaySprites[2] !== undefined && (
+            {content[2] !== undefined && (
               <IngredientSprite
                 position={[0.6, 0.3, 0.8]}
-                ingredientName={contentDisplaySprites[2]}
-                isActive={activeAppliance?.acceptedIngredients.includes(contentDisplaySprites[2])}
+                ingredientName={content[2]}
+                isActive={
+                  activeAppliance ? isAcceptedIngredient(activeAppliance?.acceptedIngredients, content[2]) : false
+                }
               />
             )}
           </group>

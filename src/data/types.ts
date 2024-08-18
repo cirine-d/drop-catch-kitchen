@@ -1,8 +1,10 @@
 import { appliancesDictionary, ingredientsDictionary, levels, ordersDictionary } from './constants';
 
-export type BasketDirection = 'left' | 'right' | null;
+export type PlayerControls = 'left' | 'right' | 'up' | 'down' | null;
 
 export type MenuAction = 'start' | 'pause';
+
+export type ContentUpdateMode = 'adding' | 'overwrite';
 
 export type GameState = 'startMenu' | 'startingGame' | 'playing' | 'paused' | 'gameOver';
 
@@ -40,9 +42,9 @@ export interface Level {
 
 export interface Appliance {
   acceptedIngredients: IngredientName[];
-  content: Partial<Record<IngredientName, number>>;
+  content: IngredientName[];
+  contentLimit: number;
   isCooking: boolean;
-  cookingTime: number; //minutes
-  updateContent?: (ingredients: IngredientName[]) => void;
+  updateContent?: (updateMode: ContentUpdateMode, ingredients: IngredientName[]) => void;
   setIsCooking?: (isCooking: boolean) => void;
 }

@@ -1,20 +1,20 @@
 import { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import { levels } from '../data/constants';
 import { GameState as State, Level, IngredientName, LevelName, Appliance } from '../data/types';
-import { generateWeightedInventoryFromMenu } from './utils';
-import { useAppliances } from './hooks/useAppliances';
+import { generateWeightedInventoryFromMenu, isIngredientTransferPossible } from './utils';
+import { Appliances, useAppliances } from './hooks/useAppliances';
 import { Basket, useBasket } from './hooks/useBasket';
+import { isAcceptedIngredient, isIngredientName } from '../utils';
 
-interface IGameStateContext {
+interface IGameStateContext extends Appliances {
   gameState: State;
   basket: Basket;
-  appliances: Map<string, Appliance | undefined>;
   currentLevel: Level | undefined;
   timer: number;
   inventory: Map<IngredientName, number> | undefined;
   startGame: (level: LevelName) => void;
   pauseGame: () => void;
-  setActiveAppliance: (applianceId: string | undefined) => void;
+  transferIngredientsFromBasket: () => void;
 }
 
 const GameStateContext = createContext<IGameStateContext | undefined>(undefined);
@@ -23,15 +23,15 @@ export const GameStateProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [gameState, setGameState] = useState<State>('startMenu');
   const [currentLevel, setCurrentLevel] = useState<Level>();
   const [timer, setTimer] = useState<number>(0);
-
   const basket = useBasket();
+  console.log(basket.content);
   const { appliances, activeAppliance, setActiveAppliance } = useAppliances(currentLevel);
 
   const inventory = useMemo(
     () => (currentLevel !== undefined ? generateWeightedInventoryFromMenu(currentLevel.menu) : undefined),
     [currentLevel]
   );
-  console.log(activeAppliance);
+
   useEffect(() => {
     let interval;
 
@@ -73,18 +73,33 @@ export const GameStateProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setGameState('gameOver');
   }, []);
 
+  const transferIngredientsFromBasket = useCallback(() => {
+    if (isIngredientTransferPossible(activeAppliance, basket.content)) {
+      const validIngredients = basket.content.filter(ingredient =>
+        isAcceptedIngredient(activeAppliance.acceptedIngredients, ingredient)
+      );
+      const remainingIngredients = basket.content.filter(
+        ingredient => !isAcceptedIngredient(activeAppliance.acceptedIngredients, ingredient)
+      );
+      activeAppliance.updateContent('adding', validIngredients);
+      basket.updateContent('overwrite', remainingIngredients);
+    }
+  }, [activeAppliance, basket.content, basket.updateContent]);
+
   return (
     <GameStateContext.Provider
       value={{
         gameState,
         basket,
         appliances,
+        activeAppliance,
         setActiveAppliance,
         currentLevel,
         timer,
         inventory,
         startGame,
         pauseGame,
+        transferIngredientsFromBasket,
       }}
     >
       {children}

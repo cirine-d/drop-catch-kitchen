@@ -1,20 +1,30 @@
 import { useCallback, useState } from 'react';
-import { IngredientName } from '../../data/types';
+import { ContentUpdateMode, IngredientName } from '../../data/types';
+import { applyContentLimitToArray } from '../../utils';
 
 export interface Basket {
-  content: Partial<Record<IngredientName, number>>;
-  updateContent: (ingredient: IngredientName) => void;
+  content: IngredientName[];
+  updateContent: (updateMode: ContentUpdateMode, ingredients: IngredientName[]) => void;
 }
 
 export const useBasket = (): Basket => {
-  const [content, setContent] = useState<Basket['content']>({});
+  const [content, setContent] = useState<Basket['content']>([]);
+  const contentLimit = 3;
 
-  const updateContent = useCallback((ingredient: IngredientName) => {
-    setContent(prev => ({
-      ...prev,
-      [ingredient]: (prev[ingredient] || 0) + 1,
-    }));
-  }, []);
+  const updateContent = useCallback(
+    (updateDirection: ContentUpdateMode, ingredients: IngredientName[]) => {
+      if (updateDirection === 'adding') {
+        const remainingCapacity = contentLimit - content.length;
+        setContent(prev => [...prev, ...applyContentLimitToArray(remainingCapacity, ingredients)]);
+      }
+
+      if (updateDirection === 'overwrite') {
+        setContent(ingredients);
+      }
+    },
+    [content, contentLimit]
+  );
+
   return {
     updateContent,
     content,

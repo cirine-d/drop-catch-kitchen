@@ -4,13 +4,25 @@ import { CAMERA_Z_OFFSET, LEVEL_Z_INDEX, MENU_Z_INDEX } from './data/constants';
 import { Scene } from './Scene';
 import { UI } from './UI';
 import { Physics } from '@react-three/rapier';
-import { Suspense } from 'react';
+import { Suspense, useMemo } from 'react';
+import { KeyboardControls, KeyboardControlsEntry } from '@react-three/drei';
+import { PlayerControls } from './data/types';
 
 const App: React.FC = () => {
   const { gameState } = useGameState();
 
+  const keyboardControl = useMemo<KeyboardControlsEntry<PlayerControls>[]>(
+    () => [
+      { name: 'up', keys: ['ArrowUp', 'KeyW'] },
+      { name: 'down', keys: ['ArrowDown', 'KeyS'] },
+      { name: 'left', keys: ['ArrowLeft', 'KeyA'] },
+      { name: 'right', keys: ['ArrowRight', 'KeyD'] },
+    ],
+    []
+  );
+
   return (
-    <>
+    <KeyboardControls map={keyboardControl}>
       <UI />
       <Canvas
         camera={{
@@ -26,7 +38,7 @@ const App: React.FC = () => {
           </Physics>
         </Suspense>
       </Canvas>
-    </>
+    </KeyboardControls>
   );
 };
 

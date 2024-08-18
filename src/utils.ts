@@ -1,20 +1,6 @@
 import { appliancesDictionary, ingredientsDictionary } from './data/constants';
 import { ApplianceName, IngredientName } from './data/types';
 
-export const getDirectionFromKey = event => {
-  switch (event.keyCode) {
-    case 37:
-      return 'left';
-    case 65:
-      return 'left';
-    case 39:
-      return 'right';
-    case 68:
-      return 'right';
-    default:
-  }
-};
-
 export const generateRandom = (min: number = 0, max: number = 100) => {
   const difference = max - min;
   const rand = Math.random();
@@ -46,4 +32,22 @@ export const isIngredientName = (value: string): value is IngredientName => {
 
 export const isApplianceName = (value: string): value is ApplianceName => {
   return Object.keys(appliancesDictionary).includes(value);
+};
+
+export const applyContentLimitToArray = <T>(remainingCapacity: number, array: T[]): T[] => {
+  if (remainingCapacity > 0) {
+    return array.slice(0, remainingCapacity);
+  }
+
+  return [];
+};
+
+export const isAcceptedIngredient = (
+  acceptedIngredients: IngredientName[],
+  ingredientToCheck: IngredientName
+): boolean => {
+  if (acceptedIngredients.includes(ingredientToCheck)) {
+    return true;
+  }
+  return false;
 };

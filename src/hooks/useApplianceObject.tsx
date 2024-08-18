@@ -1,18 +1,24 @@
 import { useCallback, useState } from 'react';
-import { Appliance, IngredientName } from '../data/types';
+import { Appliance, ContentUpdateMode, IngredientName } from '../data/types';
+import { applyContentLimitToArray } from '../utils';
 
 export const useApplianceObject = (appliance: Appliance): Appliance => {
-  const [content, setContent] = useState<Partial<Record<IngredientName, number>>>(appliance.content);
+  const [content, setContent] = useState<IngredientName[]>(appliance.content);
   const [isCooking, setIsCooking] = useState(appliance.isCooking);
 
-  const updateContent = useCallback((ingredients: IngredientName[]) => {
-    ingredients.forEach(ingredient => {
-      setContent(prev => ({
-        ...prev,
-        [ingredient]: (prev[ingredient] || 0) + 1,
-      }));
-    });
-  }, []);
+  const updateContent = useCallback(
+    (updateDirection: ContentUpdateMode, ingredients: IngredientName[]) => {
+      if (updateDirection === 'adding') {
+        const remainingCapacity = appliance.contentLimit - content.length;
+        setContent(prev => [...prev, ...applyContentLimitToArray(remainingCapacity, ingredients)]);
+      }
+
+      if (updateDirection === 'overwrite') {
+        setContent(ingredients);
+      }
+    },
+    [content, appliance.contentLimit]
+  );
 
   return {
     ...appliance,

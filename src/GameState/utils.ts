@@ -1,5 +1,6 @@
 import { ordersDictionary } from '../data/constants';
 import { Appliance, ApplianceName, IngredientName, OrderName } from '../data/types';
+import { isAcceptedIngredient, isIngredientName } from '../utils';
 
 export const generateWeightedInventoryFromMenu = (menu: Map<OrderName, number>): Map<IngredientName, number> => {
   const weightedInventory: Map<IngredientName, number> = new Map();
@@ -44,16 +45,44 @@ export const createAppliancesMap = (
   }
 
   const applianceNames = [...new Set(allAppliances)];
-  applianceNames.forEach((name, index) => appliancesMap.set(`${name}-${index}`, createApplianceObject()));
+  applianceNames.forEach((name, index) => {
+    appliancesMap.set(`${name}-${index}`, createApplianceObject(name));
+  });
 
   return appliancesMap;
 };
 
-const createApplianceObject = (): Appliance => {
+const createApplianceObject = (applianceName: ApplianceName): Appliance => {
+  const acceptedIngredients: IngredientName[] = Object.values(ordersDictionary)
+    .filter(order => order.appliance === applianceName)
+    .flatMap(order => Object.keys(order.recipe))
+    .filter(isIngredientName);
+
   return {
-    acceptedIngredients: ['apple', 'banana', 'strawberry', 'milk'],
-    content: {},
+    content: [],
+    acceptedIngredients,
+    contentLimit: 3,
     isCooking: false,
-    cookingTime: 3, //minutes
   };
+};
+
+export const isIngredientTransferPossible = (
+  activeAppliance: Appliance | undefined,
+  ingredients: IngredientName[]
+): boolean => {
+  if (activeAppliance === undefined) {
+    return false;
+  }
+
+  if (activeAppliance.content.length === activeAppliance.contentLimit || activeAppliance.isCooking) {
+    return false;
+  }
+
+  const validIngredients = ingredients.filter(ingredient =>
+    isAcceptedIngredient(activeAppliance.acceptedIngredients, ingredient)
+  );
+
+  if (validIngredients.length > 0) {
+    return true;
+  }
 };

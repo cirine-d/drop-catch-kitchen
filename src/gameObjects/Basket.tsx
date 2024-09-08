@@ -9,7 +9,7 @@ import {
   interactionGroups,
 } from '@react-three/rapier';
 import { PlayerControls } from '../data/types';
-import { BASKET_BOUNDS, BASKET_SENSOR, INGREDIENTS, colours } from '../data/constants';
+import { BASKET_BOUNDS, BASKET_LID, BASKET_SENSOR, INGREDIENTS, colours } from '../data/constants';
 import { isAcceptedIngredient, isIngredientName } from '../utils';
 import { IngredientSprite } from './IngredientSprite';
 import { useGameState } from '../GameState/GameState';
@@ -26,7 +26,7 @@ interface Props {
 }
 
 export const Basket: React.FC<Props> = (props: Props) => {
-  const { content, updateContent } = useGameState().basket;
+  const { content, isBasketFull, updateContent } = useGameState().basket;
   const { activeAppliance, transferIngredientsFromBasket } = useGameState();
   const leftPressed = useKeyboardControls<PlayerControls>(state => state.left);
   const rightPressed = useKeyboardControls<PlayerControls>(state => state.right);
@@ -47,6 +47,13 @@ export const Basket: React.FC<Props> = (props: Props) => {
   useEffect(() => {
     basketRef.current.setLinvel({ x: impulse, y: 0, z: 0 }, true);
   }, [impulse]);
+
+  useEffect(() => {
+    basketRef.current.setTranslation(
+      { x: props.startPosition.x - 0.5, y: props.startPosition.y, z: props.startPosition.z },
+      true
+    );
+  }, []);
 
   useFrame(() => {
     if (leftPressed && basketRef.current.translation().x >= props.gamePanelBoundaries.left) {
@@ -90,7 +97,6 @@ export const Basket: React.FC<Props> = (props: Props) => {
     points.push(new THREE.Vector2(1, 0));
     points.push(new THREE.Vector2(1, 0.7)); // The widest point of the basket
     points.push(new THREE.Vector2(1, 0));
-
     return (
       <group name="Basket">
         <mesh>
@@ -101,52 +107,54 @@ export const Basket: React.FC<Props> = (props: Props) => {
           <circleGeometry args={[1, 6]} />
           <meshBasicMaterial color={colours.BROWN} />
         </mesh>
-        {content.length > 0 && (
-          <group name="BasketContentDisplay">
-            {content[0] !== undefined && (
-              <IngredientSprite
-                position={[-0.6, 0.3, 0.8]}
-                ingredientName={content[0]}
-                isActive={
-                  activeAppliance ? isAcceptedIngredient(activeAppliance?.acceptedIngredients, content[0]) : false
-                }
-              />
-            )}
-            {content[1] !== undefined && (
-              <IngredientSprite
-                position={[0, 0.3, 1]}
-                ingredientName={content[1]}
-                isActive={
-                  activeAppliance ? isAcceptedIngredient(activeAppliance?.acceptedIngredients, content[1]) : false
-                }
-              />
-            )}
-            {content[2] !== undefined && (
-              <IngredientSprite
-                position={[0.6, 0.3, 0.8]}
-                ingredientName={content[2]}
-                isActive={
-                  activeAppliance ? isAcceptedIngredient(activeAppliance?.acceptedIngredients, content[2]) : false
-                }
-              />
-            )}
-          </group>
-        )}
+        {content.length > 0 && <BasketContentDisplay />}
       </group>
     );
   };
 
+  const BasketContentDisplay: React.FC = () => (
+    <group name="BasketContentDisplay">
+      {content[0] !== undefined && (
+        <IngredientSprite
+          position={[-0.6, 0.3, 0.8]}
+          ingredientName={content[0]}
+          isActive={activeAppliance ? isAcceptedIngredient(activeAppliance?.acceptedIngredients, content[0]) : false}
+        />
+      )}
+      {content[1] !== undefined && (
+        <IngredientSprite
+          position={[0, 0.3, 1]}
+          ingredientName={content[1]}
+          isActive={activeAppliance ? isAcceptedIngredient(activeAppliance?.acceptedIngredients, content[1]) : false}
+        />
+      )}
+      {content[2] !== undefined && (
+        <IngredientSprite
+          position={[0.6, 0.3, 0.8]}
+          ingredientName={content[2]}
+          isActive={activeAppliance ? isAcceptedIngredient(activeAppliance?.acceptedIngredients, content[2]) : false}
+        />
+      )}
+    </group>
+  );
+
   return (
     <>
       <Boundary position="left" />
-      <RigidBody
-        colliders="trimesh"
-        ref={basketRef}
-        gravityScale={0}
-        lockRotations
-        lockTranslations
-        position={[props.startPosition.x - 0.5, props.startPosition.y, props.startPosition.z]}
-      >
+      <RigidBody colliders="trimesh" ref={basketRef} gravityScale={0} lockRotations lockTranslations>
+        {isBasketFull && (
+          <CylinderCollider
+            name="BasketLid"
+            args={[0.2, 0.8]}
+            position={[0, 0.6, 0]}
+            collisionGroups={interactionGroups(BASKET_LID, [INGREDIENTS])}
+          >
+            <mesh position={[0, 0.2, 0]}>
+              <cylinderGeometry args={[1, 1, 0.2, 6]} />
+              <meshBasicMaterial color={colours.BROWN} />
+            </mesh>
+          </CylinderCollider>
+        )}
         <CylinderCollider
           name="BasketSensor"
           args={[0.02, 0.8]}

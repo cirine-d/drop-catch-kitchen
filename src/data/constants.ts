@@ -82,3 +82,4 @@ export const BASKET_BOUNDS = 0;
 export const BASKET_SENSOR = 1;
 export const INGREDIENTS = 2;
 export const APPLIANCES = 3;
+export const BASKET_LID = 4;

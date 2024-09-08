@@ -8,7 +8,13 @@ interface Props {
 
 export const Ingredient: React.FC<Props> = (props: Props) => {
   return (
-    <RigidBody name={props.name} colliders="trimesh" collisionGroups={interactionGroups(INGREDIENTS)} linearDamping={2}>
+    <RigidBody
+      name={props.name}
+      colliders="trimesh"
+      collisionGroups={interactionGroups(INGREDIENTS)}
+      linearDamping={2}
+      restitution={2}
+    >
       <mesh name={props.name} position={[props.startPosition.x, props.startPosition.y, props.startPosition.z]}>
         <icosahedronGeometry args={[0.4]} />
         <meshBasicMaterial color={ingredientsDictionary[props.name].color} />

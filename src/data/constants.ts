@@ -1,4 +1,4 @@
-import { IngredientName, OrderName } from './types';
+import { OrderName } from './types';
 
 //No typings for these as we are building types from these constants
 export const colours = {
@@ -32,28 +32,47 @@ export const ingredientsDictionary = {
 export const appliancesDictionary = {
   blender: {
     picture: 'assets/appliances/blender.png',
+    contentLimit: 3,
+  },
+  largeBlender: {
+    picture: 'assets/appliances/blender.png',
+    contentLimit: 4,
   },
   storage: {
     picture: 'assets/appliances/storage.png',
+    contentLimit: 2,
   },
 };
 
+//How to insure unique ingredient/appliance combos for each order? Could cause issues with cooking logic if not unique
 export const ordersDictionary = {
   bananaSmoothie: {
+    name: 'bananaSmoothie',
     price: 5,
     appliance: 'blender',
+    cookingTime: 4,
     recipe: {
       banana: 2,
       milk: 1,
     },
+    picture: 'assets/orders/bananaSmoothie.png',
   },
   strawberryJuice: {
+    name: 'strawberryJuice',
     price: 4,
     appliance: 'blender',
+    cookingTime: 4,
     recipe: {
       strawberry: 2,
       apple: 1,
     },
+    picture: 'assets/orders/strawberryJuice.png',
+  },
+  failedOrder: {
+    name: 'failedOrder',
+    cookingTime: 4,
+    picture: 'assets/orders/poop.png',
+    price: 1,
   },
 };
 

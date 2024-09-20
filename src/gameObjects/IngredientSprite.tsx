@@ -9,7 +9,7 @@ interface Props extends SpriteProps {
 }
 
 export const IngredientSprite: React.FC<Props> = props => {
-  const ingredientTexture = useLoader(TextureLoader, ingredientsDictionary[props.ingredientName].picture);
+  const texture = useLoader(TextureLoader, ingredientsDictionary[props.ingredientName].picture);
   const glowTexture = useLoader(TextureLoader, 'assets/ingredients/glow.png');
 
   return (
@@ -20,7 +20,7 @@ export const IngredientSprite: React.FC<Props> = props => {
         </sprite>
       )}
       <sprite {...props} scale={0.5}>
-        <spriteMaterial map={ingredientTexture} />
+        <spriteMaterial map={texture} />
       </sprite>
     </>
   );

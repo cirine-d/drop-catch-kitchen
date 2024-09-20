@@ -1,5 +1,5 @@
-import { appliancesDictionary, ingredientsDictionary } from './data/constants';
-import { ApplianceName, IngredientName } from './data/types';
+import { appliancesDictionary, ingredientsDictionary, ordersDictionary } from './data/constants';
+import { ApplianceName, IngredientName, OrderName } from './data/types';
 
 export const generateRandom = (min: number = 0, max: number = 100) => {
   const difference = max - min;
@@ -32,6 +32,10 @@ export const isIngredientName = (value: string): value is IngredientName => {
 
 export const isApplianceName = (value: string): value is ApplianceName => {
   return Object.keys(appliancesDictionary).includes(value);
+};
+
+export const isOrderName = (value: string): value is OrderName => {
+  return Object.keys(ordersDictionary).includes(value);
 };
 
 export const applyContentLimitToArray = <T>(remainingCapacity: number, array: T[]): T[] => {

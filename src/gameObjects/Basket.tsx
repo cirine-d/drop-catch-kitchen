@@ -14,7 +14,6 @@ import { isAcceptedIngredient, isIngredientName } from '../utils';
 import { IngredientSprite } from './IngredientSprite';
 import { useGameState } from '../GameState/GameState';
 import { useKeyboardControls } from '@react-three/drei';
-import { useFrame } from '@react-three/fiber';
 
 interface Props {
   startPosition: Vector3Object;
@@ -31,6 +30,7 @@ export const Basket: React.FC<Props> = (props: Props) => {
   const leftPressed = useKeyboardControls<PlayerControls>(state => state.left);
   const rightPressed = useKeyboardControls<PlayerControls>(state => state.right);
   const downPressed = useKeyboardControls<PlayerControls>(state => state.down);
+  const upPressed = useKeyboardControls<PlayerControls>(state => state.up);
   const basketRef = useRef<RapierRigidBody>();
   const [impulse, setImpulse] = useState<number>(0);
 
@@ -55,7 +55,7 @@ export const Basket: React.FC<Props> = (props: Props) => {
     );
   }, []);
 
-  useFrame(() => {
+  useEffect(() => {
     if (leftPressed && basketRef.current.translation().x >= props.gamePanelBoundaries.left) {
       return setImpulse(-5);
     }
@@ -65,9 +65,12 @@ export const Basket: React.FC<Props> = (props: Props) => {
     if (downPressed) {
       transferIngredientsFromBasket();
     }
+    if (upPressed && activeAppliance) {
+      activeAppliance.collectPendingOrder();
+    }
 
     setImpulse(0);
-  });
+  }, [rightPressed, leftPressed, downPressed, upPressed, activeAppliance]);
 
   const Boundary = memo((boundaryProps: { position: 'left' | 'right' }) => {
     const boundaryOffset = 0.7;

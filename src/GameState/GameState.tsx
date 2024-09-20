@@ -75,12 +75,21 @@ export const GameStateProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const transferIngredientsFromBasket = useCallback(() => {
     if (isIngredientTransferPossible(activeAppliance, basket.content)) {
+      const activeApplianceCapacity = activeAppliance.contentLimit - activeAppliance.content.length;
+      if (activeApplianceCapacity <= 0) {
+        return;
+      }
+
       const validIngredients = basket.content.filter(ingredient =>
         isAcceptedIngredient(activeAppliance.acceptedIngredients, ingredient)
       );
+
       const remainingIngredients = basket.content.filter(
         ingredient => !isAcceptedIngredient(activeAppliance.acceptedIngredients, ingredient)
       );
+
+      remainingIngredients.concat(validIngredients.splice(activeApplianceCapacity));
+
       activeAppliance.updateContent('adding', validIngredients);
       basket.updateContent('overwrite', remainingIngredients);
     }

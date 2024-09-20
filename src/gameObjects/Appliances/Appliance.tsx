@@ -3,11 +3,12 @@ import { TextureLoader } from 'three';
 import { APPLIANCES, BASKET_SENSOR, appliancesDictionary } from '../../data/constants';
 import { CuboidCollider, RigidBody, RigidBodyProps, interactionGroups } from '@react-three/rapier';
 import { getApplianceNameFromId } from '../../utils';
-import { Appliance as IAppliance, IngredientName } from '../../data/types';
+import { Appliance as IAppliance } from '../../data/types';
 import { useGameState } from '../../GameState/GameState';
 import { useRef, useState } from 'react';
 import { IngredientSprite } from '../IngredientSprite';
 import { useApplianceObject } from '../../hooks/useApplianceObject';
+import { PendingOrderDisplay } from './PendingOrderDisplay';
 
 interface Props extends RigidBodyProps {
   applianceId: string;
@@ -61,6 +62,13 @@ export const Appliance: React.FC<Props> = props => {
               <IngredientSprite position={[1, -0.3, 0.8]} ingredientName={appliance.content[2]} />
             )}
           </group>
+        )}
+        {appliance.pendingOrder !== undefined && (
+          <PendingOrderDisplay
+            applianceId={props.applianceId}
+            orderPic={appliance.pendingOrder.picture}
+            cookingTimer={appliance.cookingTimer}
+          />
         )}
         <mesh>
           <planeGeometry args={[2, 2, 2]} />

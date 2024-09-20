@@ -1,6 +1,8 @@
-import { ordersDictionary } from '../data/constants';
-import { Appliance, ApplianceName, IngredientName, OrderName } from '../data/types';
+import { appliancesDictionary, ordersDictionary as untypedOrdersDictionary } from '../data/constants';
+import { Appliance, ApplianceName, IngredientName, Order, OrderName } from '../data/types';
 import { isAcceptedIngredient, isIngredientName } from '../utils';
+
+const ordersDictionary = untypedOrdersDictionary as Record<OrderName, Order>;
 
 export const generateWeightedInventoryFromMenu = (menu: Map<OrderName, number>): Map<IngredientName, number> => {
   const weightedInventory: Map<IngredientName, number> = new Map();
@@ -59,9 +61,10 @@ const createApplianceObject = (applianceName: ApplianceName): Appliance => {
     .filter(isIngredientName);
 
   return {
+    name: applianceName,
     content: [],
     acceptedIngredients,
-    contentLimit: 3,
+    contentLimit: appliancesDictionary[applianceName].contentLimit,
     isCooking: false,
   };
 };

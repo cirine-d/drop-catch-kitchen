@@ -27,11 +27,14 @@ export type LevelName = keyof typeof levels;
 //   picture: string;
 // }
 
-// export interface Order {
-//   price: number;
-//   recipe: Partial<Record<IngredientName, number>>;
-//   appliance: ApplianceName;
-// }
+export interface Order {
+  name: OrderName;
+  price: number;
+  recipe?: Partial<Record<IngredientName, number>>;
+  appliance?: ApplianceName;
+  cookingTime: number;
+  picture: string;
+}
 
 export interface Level {
   menu: Map<OrderName, number>;
@@ -41,10 +44,13 @@ export interface Level {
 }
 
 export interface Appliance {
+  name: ApplianceName;
   acceptedIngredients: IngredientName[];
   content: IngredientName[];
   contentLimit: number;
   isCooking: boolean;
+  cookingTimer?: number;
+  pendingOrder?: Order;
   updateContent?: (updateMode: ContentUpdateMode, ingredients: IngredientName[]) => void;
-  setIsCooking?: (isCooking: boolean) => void;
+  collectPendingOrder?: () => void;
 }

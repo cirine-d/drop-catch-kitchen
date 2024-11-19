@@ -2,12 +2,13 @@ import { useLoader } from '@react-three/fiber';
 import { TextureLoader } from 'three';
 import { APPLIANCES, BASKET_SENSOR, appliancesDictionary } from '../../data/constants';
 import { CuboidCollider, RigidBody, RigidBodyProps, interactionGroups } from '@react-three/rapier';
-import { getApplianceNameFromId } from '../../utils';
+import { getApplianceNameFromId, isOrderName } from '../../utils';
 import { Appliance as IAppliance } from '../../data/types';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { IngredientSprite } from '../IngredientSprite';
 import { PendingOrderDisplay } from './PendingOrderDisplay';
 import { useBoundStore } from '../../store';
+import { findPossibleOrder } from '../../store/utils';
 
 interface Props extends RigidBodyProps {
   applianceId: string;
@@ -15,11 +16,20 @@ interface Props extends RigidBodyProps {
 }
 
 export const Appliance: React.FC<Props> = props => {
-  const { appliances, setActiveAppliance } = useBoundStore();
+  const { appliances, setActiveAppliance, startCooking, currentLevel } = useBoundStore();
   const appliance = useMemo(() => appliances.get(props.applianceId), [appliances, props.applianceId]);
   const [isHighlighted, setIsHighlighted] = useState<boolean>(false);
   const texture = useLoader(TextureLoader, appliancesDictionary[getApplianceNameFromId(props.applianceId)].picture);
   const activeOverlaps = useRef(0);
+
+  useEffect(() => {
+    if (appliance.contentLimit === appliance.content.length) {
+      startCooking(
+        props.applianceId,
+        findPossibleOrder(appliance.content, appliance.name, Array.from(currentLevel.menu.keys()))
+      );
+    }
+  }, [appliance.content]);
 
   const handleIntersectionEnter = () => {
     activeOverlaps.current += 1;

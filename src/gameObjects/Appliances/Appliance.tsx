@@ -4,11 +4,10 @@ import { APPLIANCES, BASKET_SENSOR, appliancesDictionary } from '../../data/cons
 import { CuboidCollider, RigidBody, RigidBodyProps, interactionGroups } from '@react-three/rapier';
 import { getApplianceNameFromId } from '../../utils';
 import { Appliance as IAppliance } from '../../data/types';
-import { useGameState } from '../../GameState/GameState';
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { IngredientSprite } from '../IngredientSprite';
-import { useApplianceObject } from '../../hooks/useApplianceObject';
 import { PendingOrderDisplay } from './PendingOrderDisplay';
+import { useBoundStore } from '../../store';
 
 interface Props extends RigidBodyProps {
   applianceId: string;
@@ -16,8 +15,8 @@ interface Props extends RigidBodyProps {
 }
 
 export const Appliance: React.FC<Props> = props => {
-  const { setActiveAppliance } = useGameState();
-  const appliance = useApplianceObject(props.appliance);
+  const { appliances, setActiveAppliance } = useBoundStore();
+  const appliance = useMemo(() => appliances.get(props.applianceId), [appliances, props.applianceId]);
   const [isHighlighted, setIsHighlighted] = useState<boolean>(false);
   const texture = useLoader(TextureLoader, appliancesDictionary[getApplianceNameFromId(props.applianceId)].picture);
   const activeOverlaps = useRef(0);
@@ -25,7 +24,7 @@ export const Appliance: React.FC<Props> = props => {
   const handleIntersectionEnter = () => {
     activeOverlaps.current += 1;
     if (activeOverlaps.current > 0) {
-      setActiveAppliance(appliance);
+      setActiveAppliance(props.applianceId);
       setIsHighlighted(true);
     }
   };

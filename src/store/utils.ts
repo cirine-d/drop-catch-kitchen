@@ -65,7 +65,7 @@ const createApplianceObject = (applianceName: ApplianceName): Appliance => {
     content: [],
     acceptedIngredients,
     contentLimit: appliancesDictionary[applianceName].contentLimit,
-    isCooking: false,
+    isActive: false,
   };
 };
 
@@ -77,7 +77,7 @@ export const isIngredientTransferPossible = (
     return false;
   }
 
-  if (activeAppliance.content.length === activeAppliance.contentLimit || activeAppliance.isCooking) {
+  if (activeAppliance.content.length === activeAppliance.contentLimit || activeAppliance.cookingTimer !== 0) {
     return false;
   }
 

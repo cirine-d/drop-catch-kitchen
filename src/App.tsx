@@ -1,5 +1,4 @@
 import { Canvas } from '@react-three/fiber';
-import { GameStateProvider, useGameState } from './GameState/GameState';
 import { CAMERA_Z_OFFSET, LEVEL_Z_INDEX, MENU_Z_INDEX } from './data/constants';
 import { Scene } from './Scene';
 import { UI } from './UI';
@@ -7,9 +6,10 @@ import { Physics } from '@react-three/rapier';
 import { Suspense, useMemo } from 'react';
 import { KeyboardControls, KeyboardControlsEntry } from '@react-three/drei';
 import { PlayerControls } from './data/types';
+import { useBoundStore } from './store';
 
 const App: React.FC = () => {
-  const { gameState } = useGameState();
+  const { gameState } = useBoundStore();
 
   const keyboardControl = useMemo<KeyboardControlsEntry<PlayerControls>[]>(
     () => [

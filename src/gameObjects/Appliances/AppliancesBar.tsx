@@ -1,8 +1,8 @@
 import { memo } from 'react';
 import { LEVEL_Z_INDEX } from '../../data/constants';
 import { Appliance } from './Appliance';
-import { useGameState } from '../../GameState/GameState';
 import { Appliance as IAppliance } from '../../data/types';
+import { useBoundStore } from '../../store';
 
 interface Props {
   appliances: Map<string, IAppliance>;
@@ -10,7 +10,7 @@ interface Props {
 }
 
 const AppliancesBar: React.FC<Props> = props => {
-  const { appliances } = useGameState();
+  const { appliances } = useBoundStore();
   return (
     <>
       {Array.from(props.appliances.keys()).map(key => (

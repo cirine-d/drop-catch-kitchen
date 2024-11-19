@@ -6,7 +6,7 @@ export type MenuAction = 'start' | 'pause';
 
 export type ContentUpdateMode = 'adding' | 'overwrite';
 
-export type GameState = 'startMenu' | 'startingGame' | 'playing' | 'paused' | 'gameOver';
+export type GameStatus = 'startMenu' | 'startingGame' | 'playing' | 'paused' | 'gameOver';
 
 export type IngredientName = keyof typeof ingredientsDictionary;
 
@@ -48,9 +48,7 @@ export interface Appliance {
   acceptedIngredients: IngredientName[];
   content: IngredientName[];
   contentLimit: number;
-  isCooking: boolean;
+  isActive: boolean;
   cookingTimer?: number;
   pendingOrder?: Order;
-  updateContent?: (updateMode: ContentUpdateMode, ingredients: IngredientName[]) => void;
-  collectPendingOrder?: () => void;
 }

@@ -1,7 +1,8 @@
-import { useGameState } from './GameState/GameState';
+import { useBoundStore } from './store';
 
 export const UI: React.FC = () => {
-  const { startGame, pauseGame, gameState, timer } = useGameState();
+  const { startGame, pauseGame, unpauseGame, gameState, gameTimer } = useBoundStore();
+
   return (
     <div id="ui">
       {gameState === 'startMenu' && (
@@ -14,10 +15,16 @@ export const UI: React.FC = () => {
       )}
       {gameState !== 'startMenu' && (
         <div id="gameMenu">
-          <button id="pauseButton" onClick={() => pauseGame()}>
-            {gameState === 'paused' ? 'PLAY' : 'PAUSE'}
-          </button>
-          {`${timer} seconds left`}
+          {gameState === 'paused' ? (
+            <button id="pauseButton" onClick={() => unpauseGame()}>
+              PLAY
+            </button>
+          ) : (
+            <button id="pauseButton" onClick={() => pauseGame()}>
+              PAUSE
+            </button>
+          )}
+          {`${gameTimer} seconds left`}
           <div></div>
         </div>
       )}

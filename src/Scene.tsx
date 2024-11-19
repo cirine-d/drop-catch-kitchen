@@ -10,13 +10,13 @@ import { CAMERA_Z_OFFSET, GAME_PANEL, LEVEL_Z_INDEX, MENU_PANEL, MENU_Z_INDEX, c
 import { generateItemFromWeightedList, generateRandom } from './utils';
 import { Basket } from './gameObjects/Basket';
 import { Ingredient } from './gameObjects/Ingredient';
-import { useGameState } from './GameState/GameState';
 import AppliancesBar from './gameObjects/Appliances/AppliancesBar';
+import { useBoundStore } from './store';
 
 export const Scene: React.FC = () => {
   const scene = useThree();
   const physicsWorld = useRapier();
-  const { gameState, inventory, appliances } = useGameState();
+  const { gameState, inventory, appliances } = useBoundStore();
   const [fallingIngredients, setFallingIngredients] = useState<JSX.Element[]>([]);
   const cameraPosition = useRef(scene.camera.position);
   const gamePanelBoundariesRef = useRef<any>();

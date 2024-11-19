@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import {
   CuboidCollider,
@@ -12,8 +12,8 @@ import { PlayerControls } from '../data/types';
 import { BASKET_BOUNDS, BASKET_LID, BASKET_SENSOR, INGREDIENTS, colours } from '../data/constants';
 import { isAcceptedIngredient, isIngredientName } from '../utils';
 import { IngredientSprite } from './IngredientSprite';
-import { useGameState } from '../GameState/GameState';
 import { useKeyboardControls } from '@react-three/drei';
+import { useBoundStore } from '../store';
 
 interface Props {
   startPosition: Vector3Object;
@@ -25,8 +25,15 @@ interface Props {
 }
 
 export const Basket: React.FC<Props> = (props: Props) => {
-  const { content, isBasketFull, updateContent } = useGameState().basket;
-  const { activeAppliance, transferIngredientsFromBasket } = useGameState();
+  const {
+    appliances,
+    activeApplianceId,
+    transferIngredientsFromBasket,
+    basketContent,
+    isBasketFull,
+    setBasketContent,
+    collectPendingOrder,
+  } = useBoundStore();
   const leftPressed = useKeyboardControls<PlayerControls>(state => state.left);
   const rightPressed = useKeyboardControls<PlayerControls>(state => state.right);
   const downPressed = useKeyboardControls<PlayerControls>(state => state.down);
@@ -34,14 +41,16 @@ export const Basket: React.FC<Props> = (props: Props) => {
   const basketRef = useRef<RapierRigidBody>();
   const [impulse, setImpulse] = useState<number>(0);
 
+  const activeAppliance = useMemo(() => appliances.get(activeApplianceId), [appliances, activeApplianceId]);
+
   const handleIngredientCaught = useCallback(
     (ingredient: THREE.Object3D, rigidBodyHandle: number) => {
       if (isIngredientName(ingredient.name)) {
-        updateContent('adding', [ingredient.name]);
+        setBasketContent('adding', [ingredient.name]);
       }
       props.removeIngredientFromScene(ingredient.id, rigidBodyHandle);
     },
-    [updateContent, props.removeIngredientFromScene]
+    [setBasketContent, props.removeIngredientFromScene]
   );
 
   useEffect(() => {
@@ -66,7 +75,7 @@ export const Basket: React.FC<Props> = (props: Props) => {
       transferIngredientsFromBasket();
     }
     if (upPressed && activeAppliance) {
-      activeAppliance.collectPendingOrder();
+      collectPendingOrder(activeApplianceId);
     }
 
     setImpulse(0);
@@ -110,32 +119,38 @@ export const Basket: React.FC<Props> = (props: Props) => {
           <circleGeometry args={[1, 6]} />
           <meshBasicMaterial color={colours.BROWN} />
         </mesh>
-        {content.length > 0 && <BasketContentDisplay />}
+        {basketContent.length > 0 && <BasketContentDisplay />}
       </group>
     );
   };
 
   const BasketContentDisplay: React.FC = () => (
     <group name="BasketContentDisplay">
-      {content[0] !== undefined && (
+      {basketContent[0] !== undefined && (
         <IngredientSprite
           position={[-0.6, 0.3, 0.8]}
-          ingredientName={content[0]}
-          isActive={activeAppliance ? isAcceptedIngredient(activeAppliance?.acceptedIngredients, content[0]) : false}
+          ingredientName={basketContent[0]}
+          isActive={
+            activeAppliance ? isAcceptedIngredient(activeAppliance?.acceptedIngredients, basketContent[0]) : false
+          }
         />
       )}
-      {content[1] !== undefined && (
+      {basketContent[1] !== undefined && (
         <IngredientSprite
           position={[0, 0.3, 1]}
-          ingredientName={content[1]}
-          isActive={activeAppliance ? isAcceptedIngredient(activeAppliance?.acceptedIngredients, content[1]) : false}
+          ingredientName={basketContent[1]}
+          isActive={
+            activeAppliance ? isAcceptedIngredient(activeAppliance?.acceptedIngredients, basketContent[1]) : false
+          }
         />
       )}
-      {content[2] !== undefined && (
+      {basketContent[2] !== undefined && (
         <IngredientSprite
           position={[0.6, 0.3, 0.8]}
-          ingredientName={content[2]}
-          isActive={activeAppliance ? isAcceptedIngredient(activeAppliance?.acceptedIngredients, content[2]) : false}
+          ingredientName={basketContent[2]}
+          isActive={
+            activeAppliance ? isAcceptedIngredient(activeAppliance?.acceptedIngredients, basketContent[2]) : false
+          }
         />
       )}
     </group>
@@ -145,7 +160,7 @@ export const Basket: React.FC<Props> = (props: Props) => {
     <>
       <Boundary position="left" />
       <RigidBody colliders="trimesh" ref={basketRef} gravityScale={0} lockRotations lockTranslations>
-        {isBasketFull && (
+        {isBasketFull() && (
           <CylinderCollider
             name="BasketLid"
             args={[0.2, 0.8]}

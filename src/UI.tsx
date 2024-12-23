@@ -1,16 +1,28 @@
+import { levels } from './data/constants';
 import { useBoundStore } from './store';
+import { isLevelName } from './utils';
 
 export const UI: React.FC = () => {
-  const { startGame, pauseGame, unpauseGame, gameState, gameTimer } = useBoundStore();
+  const { startLevel, pauseGame, unpauseGame, goToLevelPicker, gameState, gameTimer } = useBoundStore();
 
   return (
     <div id="ui">
       {gameState === 'startMenu' && (
         <div id="startMenu">
           DROP CATCH KITCHEN!
-          <button id="playButton" onClick={() => startGame('level_1')}>
+          <button id="playButton" onClick={goToLevelPicker}>
             PLAY
           </button>
+        </div>
+      )}
+      {gameState === 'levelPicker' && (
+        <div id="startMenu">
+          DROP CATCH KITCHEN!
+          {Object.keys(levels).map(levelName => (
+            <button id={`level-${levelName}`} onClick={() => isLevelName(levelName) && startLevel(levelName)}>
+              {levelName}
+            </button>
+          ))}
         </div>
       )}
       {gameState !== 'startMenu' && (

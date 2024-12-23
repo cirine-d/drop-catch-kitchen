@@ -10,7 +10,8 @@ export interface GameState {
   currentLevel: Level | undefined;
   gameTimer: number;
   inventory: Map<IngredientName, number> | undefined;
-  startGame: (level: LevelName) => void;
+  startLevel: (level: LevelName) => void;
+  goToLevelPicker: () => void;
   pauseGame: () => void;
   unpauseGame: () => void;
   outputIngredientsFromBasket: () => void;
@@ -23,9 +24,9 @@ export const createGameStateSlice: StateCreator<BoundSlices, [], [], GameState> 
   gameTimer: 0,
   inventory: undefined,
 
-  startGame: (levelName: LevelName) => {
+  startLevel: (levelName: LevelName) => {
     set({
-      gameState: 'startingGame',
+      gameState: 'startingLevel',
       currentLevel: levels[levelName] as Level,
       gameTimer: levels[levelName].timer,
       inventory: generateWeightedInventoryFromMenu(levels[levelName].menu),
@@ -46,6 +47,12 @@ export const createGameStateSlice: StateCreator<BoundSlices, [], [], GameState> 
         return;
       }
     }, 1000);
+  },
+
+  goToLevelPicker: () => {
+    set({
+      gameState: 'levelPicker',
+    });
   },
 
   pauseGame: () => set({ gameState: 'paused' }),

@@ -1,5 +1,12 @@
-import { appliancesDictionary, ingredientsDictionary, ordersDictionary } from './data/constants';
-import { ApplianceBehaviour, applianceBehaviours, ApplianceName, IngredientName, OrderName } from './data/types';
+import { appliancesDictionary, ingredientsDictionary, levels, ordersDictionary } from './data/constants';
+import {
+  ApplianceBehaviour,
+  applianceBehaviours,
+  ApplianceName,
+  IngredientName,
+  LevelName,
+  OrderName,
+} from './data/types';
 
 export const generateRandom = (min: number = 0, max: number = 100) => {
   const difference = max - min;
@@ -36,6 +43,10 @@ export const isApplianceName = (value: string): value is ApplianceName => {
 
 export const isOrderName = (value: string): value is OrderName => {
   return Object.keys(ordersDictionary).includes(value);
+};
+
+export const isLevelName = (value: string): value is LevelName => {
+  return Object.keys(levels).includes(value);
 };
 
 export const isApplianceBehaviour = (value: any): value is ApplianceBehaviour => {

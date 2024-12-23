@@ -89,6 +89,15 @@ export const levels = {
     timer: 20,
     extraAppliances: ['storage', 'storage'],
   },
+  level_2: {
+    profitGoal: 100,
+    menu: new Map<OrderName, number>([
+      ['bananaSmoothie', 0.8],
+      ['strawberryJuice', 0.4],
+    ]),
+    timer: 20,
+    extraAppliances: ['storage'],
+  },
 };
 
 export const MENU_Z_INDEX = 8;

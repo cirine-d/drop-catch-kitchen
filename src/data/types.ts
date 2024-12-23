@@ -10,7 +10,7 @@ export const applianceBehaviours = ['acceptAllIngredients', 'cookingDisabled', '
 
 export type ApplianceBehaviour = (typeof applianceBehaviours)[number];
 
-export type GameStatus = 'startMenu' | 'startingGame' | 'playing' | 'paused' | 'gameOver';
+export type GameStatus = 'startMenu' | 'levelPicker' | 'startingLevel' | 'playing' | 'paused' | 'gameOver';
 
 export type IngredientName = keyof typeof ingredientsDictionary;
 

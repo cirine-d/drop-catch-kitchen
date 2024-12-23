@@ -26,7 +26,7 @@ export const Scene: React.FC = () => {
       gamePanelBoundariesRef.current = getGamePanelBoundaries();
     }
 
-    if (gameState === 'startingGame') {
+    if (gameState === 'startingLevel') {
       setUpGame();
     }
 

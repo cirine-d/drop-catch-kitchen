@@ -6,6 +6,10 @@ export type MenuAction = 'start' | 'pause';
 
 export type ContentUpdateMode = 'adding' | 'overwrite';
 
+export const applianceBehaviours = ['acceptAllIngredients', 'cookingDisabled', 'canOutputIngredients'] as const;
+
+export type ApplianceBehaviour = (typeof applianceBehaviours)[number];
+
 export type GameStatus = 'startMenu' | 'startingGame' | 'playing' | 'paused' | 'gameOver';
 
 export type IngredientName = keyof typeof ingredientsDictionary;
@@ -40,7 +44,7 @@ export interface Level {
   menu: Map<OrderName, number>;
   profitGoal: number;
   timer: number; //minutes
-  isStorageEnabled: boolean;
+  extraAppliances: ApplianceName[];
 }
 
 export interface Appliance {
@@ -51,4 +55,5 @@ export interface Appliance {
   isActive: boolean;
   cookingTimer?: number;
   pendingOrder?: Order;
+  specialBehaviour?: ApplianceBehaviour[];
 }

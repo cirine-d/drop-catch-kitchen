@@ -33,14 +33,17 @@ export const appliancesDictionary = {
   blender: {
     picture: 'assets/appliances/blender.png',
     contentLimit: 3,
+    specialBehaviour: [],
   },
   largeBlender: {
     picture: 'assets/appliances/blender.png',
     contentLimit: 4,
+    specialBehaviour: [],
   },
   storage: {
     picture: 'assets/appliances/storage.png',
-    contentLimit: 2,
+    contentLimit: 1,
+    specialBehaviour: ['acceptAllIngredients', 'cookingDisabled', 'canOutputIngredients'],
   },
 };
 
@@ -84,7 +87,7 @@ export const levels = {
       ['strawberryJuice', 0.4],
     ]),
     timer: 20,
-    isStorageEnabled: true,
+    extraAppliances: ['storage', 'storage'],
   },
 };
 

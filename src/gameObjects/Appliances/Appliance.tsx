@@ -23,7 +23,10 @@ export const Appliance: React.FC<Props> = props => {
   const activeOverlaps = useRef(0);
 
   useEffect(() => {
-    if (appliance.contentLimit === appliance.content.length) {
+    if (
+      appliance.contentLimit === appliance.content.length &&
+      !appliance.specialBehaviour.includes('cookingDisabled')
+    ) {
       startCooking(
         props.applianceId,
         findPossibleOrder(appliance.content, appliance.name, Array.from(currentLevel.menu.keys()))

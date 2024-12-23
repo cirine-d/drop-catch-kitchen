@@ -1,5 +1,5 @@
 import { appliancesDictionary, ingredientsDictionary, ordersDictionary } from './data/constants';
-import { ApplianceName, IngredientName, OrderName } from './data/types';
+import { ApplianceBehaviour, applianceBehaviours, ApplianceName, IngredientName, OrderName } from './data/types';
 
 export const generateRandom = (min: number = 0, max: number = 100) => {
   const difference = max - min;
@@ -38,6 +38,10 @@ export const isOrderName = (value: string): value is OrderName => {
   return Object.keys(ordersDictionary).includes(value);
 };
 
+export const isApplianceBehaviour = (value: any): value is ApplianceBehaviour => {
+  return applianceBehaviours.includes(value);
+};
+
 export const applyContentLimitToArray = <T>(remainingCapacity: number, array: T[]): T[] => {
   if (remainingCapacity > 0) {
     return array.slice(0, remainingCapacity);
@@ -48,9 +52,10 @@ export const applyContentLimitToArray = <T>(remainingCapacity: number, array: T[
 
 export const isAcceptedIngredient = (
   acceptedIngredients: IngredientName[],
-  ingredientToCheck: IngredientName
+  ingredientToCheck: IngredientName,
+  isAcceptAllIngredients: boolean
 ): boolean => {
-  if (acceptedIngredients.includes(ingredientToCheck)) {
+  if (acceptedIngredients.includes(ingredientToCheck) || isAcceptAllIngredients) {
     return true;
   }
   return false;

@@ -28,7 +28,8 @@ export const Basket: React.FC<Props> = (props: Props) => {
   const {
     appliances,
     activeApplianceId,
-    transferIngredientsFromBasket,
+    outputIngredientsFromBasket,
+    inputIngredientsToBasket,
     basketContent,
     isBasketFull,
     setBasketContent,
@@ -72,10 +73,11 @@ export const Basket: React.FC<Props> = (props: Props) => {
       return setImpulse(5);
     }
     if (downPressed) {
-      transferIngredientsFromBasket();
+      outputIngredientsFromBasket();
     }
     if (upPressed && activeAppliance) {
       collectPendingOrder(activeApplianceId);
+      inputIngredientsToBasket();
     }
 
     setImpulse(0);
@@ -131,7 +133,13 @@ export const Basket: React.FC<Props> = (props: Props) => {
           position={[-0.6, 0.3, 0.8]}
           ingredientName={basketContent[0]}
           isActive={
-            activeAppliance ? isAcceptedIngredient(activeAppliance?.acceptedIngredients, basketContent[0]) : false
+            activeAppliance
+              ? isAcceptedIngredient(
+                  activeAppliance?.acceptedIngredients,
+                  basketContent[0],
+                  activeAppliance.specialBehaviour.includes('acceptAllIngredients')
+                )
+              : false
           }
         />
       )}
@@ -140,7 +148,13 @@ export const Basket: React.FC<Props> = (props: Props) => {
           position={[0, 0.3, 1]}
           ingredientName={basketContent[1]}
           isActive={
-            activeAppliance ? isAcceptedIngredient(activeAppliance?.acceptedIngredients, basketContent[1]) : false
+            activeAppliance
+              ? isAcceptedIngredient(
+                  activeAppliance?.acceptedIngredients,
+                  basketContent[1],
+                  activeAppliance.specialBehaviour.includes('acceptAllIngredients')
+                )
+              : false
           }
         />
       )}
@@ -149,7 +163,13 @@ export const Basket: React.FC<Props> = (props: Props) => {
           position={[0.6, 0.3, 0.8]}
           ingredientName={basketContent[2]}
           isActive={
-            activeAppliance ? isAcceptedIngredient(activeAppliance?.acceptedIngredients, basketContent[2]) : false
+            activeAppliance
+              ? isAcceptedIngredient(
+                  activeAppliance?.acceptedIngredients,
+                  basketContent[2],
+                  activeAppliance.specialBehaviour.includes('acceptAllIngredients')
+                )
+              : false
           }
         />
       )}

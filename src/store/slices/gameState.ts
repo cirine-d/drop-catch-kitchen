@@ -3,7 +3,7 @@ import { BoundSlices } from '..';
 import { GameStatus, IngredientName, Level, LevelName } from '../../data/types';
 import { createAppliancesMap, generateWeightedInventoryFromMenu, isIngredientTransferPossible } from '../utils';
 import { levels } from '../../data/constants';
-import { isAcceptedIngredient } from '../../utils';
+import { isAcceptedIngredient, isApplianceName } from '../../utils';
 
 export interface GameState {
   gameState: GameStatus;
@@ -13,7 +13,8 @@ export interface GameState {
   startGame: (level: LevelName) => void;
   pauseGame: () => void;
   unpauseGame: () => void;
-  transferIngredientsFromBasket: () => void;
+  outputIngredientsFromBasket: () => void;
+  inputIngredientsToBasket: () => void;
 }
 
 export const createGameStateSlice: StateCreator<BoundSlices, [], [], GameState> = (set, get) => ({
@@ -25,10 +26,13 @@ export const createGameStateSlice: StateCreator<BoundSlices, [], [], GameState> 
   startGame: (levelName: LevelName) => {
     set({
       gameState: 'startingGame',
-      currentLevel: levels[levelName],
+      currentLevel: levels[levelName] as Level,
       gameTimer: levels[levelName].timer,
       inventory: generateWeightedInventoryFromMenu(levels[levelName].menu),
-      appliances: createAppliancesMap(levels[levelName].menu, levels[levelName].isStorageEnabled),
+      appliances: createAppliancesMap(
+        levels[levelName].menu,
+        levels[levelName].extraAppliances.filter(isApplianceName)
+      ),
     });
 
     setTimeout(() => set({ gameState: 'playing' }), 500);
@@ -60,7 +64,7 @@ export const createGameStateSlice: StateCreator<BoundSlices, [], [], GameState> 
     }, 1000);
   },
 
-  transferIngredientsFromBasket: () => {
+  outputIngredientsFromBasket: () => {
     const activeAppliance = get().appliances.get(get().activeApplianceId);
     if (isIngredientTransferPossible(activeAppliance, get().basketContent)) {
       const activeApplianceCapacity = activeAppliance.contentLimit - activeAppliance.content.length;
@@ -69,16 +73,41 @@ export const createGameStateSlice: StateCreator<BoundSlices, [], [], GameState> 
       }
 
       const validIngredients = get().basketContent.filter(ingredient =>
-        isAcceptedIngredient(activeAppliance.acceptedIngredients, ingredient)
+        isAcceptedIngredient(
+          activeAppliance.acceptedIngredients,
+          ingredient,
+          activeAppliance.specialBehaviour.includes('acceptAllIngredients')
+        )
       );
 
       const invalidIngredients = get().basketContent.filter(
-        ingredient => !isAcceptedIngredient(activeAppliance.acceptedIngredients, ingredient)
+        ingredient =>
+          !isAcceptedIngredient(
+            activeAppliance.acceptedIngredients,
+            ingredient,
+            activeAppliance.specialBehaviour.includes('acceptAllIngredients')
+          )
       );
 
       const remainingIngredients = invalidIngredients.concat(validIngredients.splice(activeApplianceCapacity));
       get().setApplianceContent(get().activeApplianceId, 'adding', validIngredients);
       get().setBasketContent('overwrite', remainingIngredients);
+    }
+  },
+
+  inputIngredientsToBasket: () => {
+    const activeAppliance = get().appliances.get(get().activeApplianceId);
+    if (activeAppliance.specialBehaviour.includes('canOutputIngredients') && activeAppliance.content.length > 0) {
+      const basketCapacity = get().basketContentLimit - get().basketContent.length;
+      if (basketCapacity <= 0) {
+        return;
+      }
+
+      const validIngredients = activeAppliance.content;
+
+      const remainingIngredients = [].concat(validIngredients.splice(basketCapacity));
+      get().setBasketContent('adding', validIngredients);
+      get().setApplianceContent(get().activeApplianceId, 'overwrite', remainingIngredients);
     }
   },
 });

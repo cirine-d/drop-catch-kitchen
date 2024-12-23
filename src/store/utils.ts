@@ -1,6 +1,6 @@
 import { appliancesDictionary, ordersDictionary as untypedOrdersDictionary } from '../data/constants';
 import { Appliance, ApplianceName, IngredientName, Order, OrderName } from '../data/types';
-import { isAcceptedIngredient, isIngredientName } from '../utils';
+import { isAcceptedIngredient, isApplianceBehaviour, isIngredientName } from '../utils';
 
 const ordersDictionary = untypedOrdersDictionary as Record<OrderName, Order>;
 
@@ -12,7 +12,11 @@ export const generateWeightedInventoryFromMenu = (menu: Map<OrderName, number>):
     if (!orderDetails) return;
 
     Object.entries(orderDetails.recipe).forEach(([ingredient, quantity]) => {
-      const ingredientName = ingredient as IngredientName;
+      if (!isIngredientName(ingredient)) {
+        return;
+      }
+
+      const ingredientName = ingredient;
       const weightContribution = orderWeight * quantity;
 
       if (weightedInventory.has(ingredientName)) {
@@ -37,16 +41,12 @@ export const generateWeightedInventoryFromMenu = (menu: Map<OrderName, number>):
 
 export const createAppliancesMap = (
   menu: Map<OrderName, number>,
-  isStorageEnabled: boolean
+  extraAppliances: ApplianceName[]
 ): Map<string, Appliance> => {
   const appliancesMap = new Map<string, Appliance | undefined>();
-  const allAppliances = Array.from(menu).map(([orderName]) => ordersDictionary[orderName].appliance as ApplianceName);
+  const allAppliances = Array.from(menu).map(([orderName]) => ordersDictionary[orderName].appliance);
+  const applianceNames = [...new Set(allAppliances), ...extraAppliances];
 
-  if (isStorageEnabled) {
-    allAppliances.push('storage');
-  }
-
-  const applianceNames = [...new Set(allAppliances)];
   applianceNames.forEach((name, index) => {
     appliancesMap.set(`${name}-${index}`, createApplianceObject(name));
   });
@@ -67,6 +67,7 @@ const createApplianceObject = (applianceName: ApplianceName): Appliance => {
     contentLimit: appliancesDictionary[applianceName].contentLimit,
     isActive: false,
     cookingTimer: 0,
+    specialBehaviour: appliancesDictionary[applianceName].specialBehaviour.filter(isApplianceBehaviour),
   };
 };
 
@@ -83,7 +84,11 @@ export const isIngredientTransferPossible = (
   }
 
   const validIngredients = ingredients.filter(ingredient =>
-    isAcceptedIngredient(activeAppliance.acceptedIngredients, ingredient)
+    isAcceptedIngredient(
+      activeAppliance.acceptedIngredients,
+      ingredient,
+      activeAppliance.specialBehaviour.includes('acceptAllIngredients')
+    )
   );
 
   if (validIngredients.length > 0) {

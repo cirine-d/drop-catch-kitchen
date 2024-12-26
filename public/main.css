@@ -37,14 +37,33 @@ body {
   background-color: azure;
   padding: 20px;
 }
-#gameMenu {
+#levelPicker {
+  position: absolute;
+  transform: translate3d(-50%, -50%, 0);
+  top: 45%;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 100px;
+  background-color: azure;
+  padding: 20px;
+}
+#inGameDashboard {
   position: absolute;
   right: 0;
   margin: 5px;
   justify-content: flex-end;
   display: flex;
   flex-direction: column;
+  gap: 12px;
+}
+#inGameMenu {
   background-color: lightskyblue;
+  display: flex;
+  flex-direction: column;
+}
+#ordersQueue {
 }
 button {
   pointer-events: auto;

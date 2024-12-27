@@ -1,8 +1,8 @@
 import { appliancesDictionary, ordersDictionary as untypedOrdersDictionary } from '../data/constants';
-import { Appliance, ApplianceName, IngredientName, Order, OrderName } from '../data/types';
+import { Appliance, ApplianceName, IngredientName, OrderItem, OrderName } from '../data/types';
 import { isAcceptedIngredient, isApplianceBehaviour, isIngredientName } from '../utils';
 
-const ordersDictionary = untypedOrdersDictionary as Record<OrderName, Order>;
+const ordersDictionary = untypedOrdersDictionary as Record<OrderName, OrderItem>;
 
 export const generateWeightedInventoryFromMenu = (menu: Map<OrderName, number>): Map<IngredientName, number> => {
   const weightedInventory: Map<IngredientName, number> = new Map();
@@ -100,7 +100,7 @@ export const findPossibleOrder = (
   content: IngredientName[],
   applianceName: ApplianceName,
   menu: OrderName[]
-): Order => {
+): OrderItem => {
   const contentRecord: Partial<Record<IngredientName, number>> = content.reduce((acc, ingredient) => {
     acc[ingredient] = (acc[ingredient] || 0) + 1;
     return acc;

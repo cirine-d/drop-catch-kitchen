@@ -1,5 +1,5 @@
 import { StateCreator } from 'zustand';
-import { Appliance, ContentUpdateMode, IngredientName, Order } from '../../data/types';
+import { Appliance, ContentUpdateMode, IngredientName, OrderItem } from '../../data/types';
 import { applyContentLimitToArray } from '../../utils';
 import { BoundSlices } from '..';
 
@@ -9,7 +9,7 @@ export interface Appliances {
   setAppliances: (appliances: Map<string, Appliance>) => void;
   setActiveAppliance: (applianceId: string) => void;
   setApplianceContent?: (applianceId: string, updateMode: ContentUpdateMode, ingredients: IngredientName[]) => void;
-  startCooking?: (applianceId: string, possibleOrder: Order) => void;
+  startCooking?: (applianceId: string, possibleOrder: OrderItem) => void;
   collectPendingOrder?: (applianceId: string) => void;
 }
 
@@ -47,7 +47,7 @@ export const createAppliancesSlice: StateCreator<BoundSlices, [], [], Appliances
       return { appliances: newAppliances };
     }),
 
-  startCooking: (applianceId: string, possibleOrder: Order) =>
+  startCooking: (applianceId: string, possibleOrder: OrderItem) =>
     set(state => {
       const newAppliances = new Map(state.appliances);
       const appliance = newAppliances.get(applianceId);

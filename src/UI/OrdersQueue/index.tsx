@@ -1,3 +1,14 @@
+import { useBoundStore } from '../../store';
+import { Order } from './Order';
+
 export const OrdersQueue: React.FC = () => {
-  return <div id="ordersQueue">ORDERS</div>;
+  const { orderQueue } = useBoundStore();
+  console.log(orderQueue);
+  return (
+    <div id="ordersQueue">
+      {orderQueue.map(order => (
+        <Order order={order} />
+      ))}
+    </div>
+  );
 };

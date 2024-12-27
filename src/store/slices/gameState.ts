@@ -1,6 +1,6 @@
 import { StateCreator } from 'zustand';
 import { BoundSlices } from '..';
-import { GameStatus, IngredientName, Level, LevelName } from '../../data/types';
+import { GameStatus, IngredientName, Level, LevelName, Order } from '../../data/types';
 import { createAppliancesMap, generateWeightedInventoryFromMenu, isIngredientTransferPossible } from '../utils';
 import { levels } from '../../data/constants';
 import { isAcceptedIngredient, isApplianceName } from '../../utils';
@@ -37,13 +37,16 @@ export const createGameStateSlice: StateCreator<BoundSlices, [], [], GameState> 
     });
 
     setTimeout(() => set({ gameState: 'playing' }), 500);
+    get().scheduleNextOrder();
 
     const interval = setInterval(() => {
       if (get().gameTimer > 0 && get().gameState === 'playing') {
         set({ gameTimer: get().gameTimer - 1 });
+        get().updateOrderTimers();
       } else {
         set({ gameState: get().gameState === 'paused' ? 'paused' : 'gameOver' });
         clearInterval(interval);
+        get().stopOrderScheduling();
         return;
       }
     }, 1000);
@@ -55,17 +58,22 @@ export const createGameStateSlice: StateCreator<BoundSlices, [], [], GameState> 
     });
   },
 
-  pauseGame: () => set({ gameState: 'paused' }),
+  pauseGame: () => {
+    set({ gameState: 'paused' });
+  },
 
   unpauseGame: () => {
     set({ gameState: 'playing' });
+    get().scheduleNextOrder();
 
     const interval = setInterval(() => {
       if (get().gameTimer > 0 && get().gameState === 'playing') {
         set({ gameTimer: get().gameTimer - 1 });
+        get().updateOrderTimers();
       } else {
         set({ gameState: get().gameState === 'paused' ? 'paused' : 'gameOver' });
         clearInterval(interval);
+        get().stopOrderScheduling();
         return;
       }
     }, 1000);

@@ -10,6 +10,8 @@ export const applianceBehaviours = ['acceptAllIngredients', 'cookingDisabled', '
 
 export type ApplianceBehaviour = (typeof applianceBehaviours)[number];
 
+export type OrderStatus = 'pending' | 'timedOut' | 'completed';
+
 export type GameStatus = 'startMenu' | 'levelPicker' | 'startingLevel' | 'playing' | 'paused' | 'gameOver';
 
 export type IngredientName = keyof typeof ingredientsDictionary;
@@ -34,6 +36,13 @@ export type LevelName = keyof typeof levels;
 export interface Order {
   name: OrderName;
   price: number;
+  status: OrderStatus;
+  timer: number;
+  picture: string;
+}
+
+export interface OrderItem {
+  name: OrderName;
   recipe?: Partial<Record<IngredientName, number>>;
   appliance?: ApplianceName;
   cookingTime: number;
@@ -54,6 +63,6 @@ export interface Appliance {
   contentLimit: number;
   isActive: boolean;
   cookingTimer?: number;
-  pendingOrder?: Order;
+  pendingOrder?: OrderItem;
   specialBehaviour?: ApplianceBehaviour[];
 }

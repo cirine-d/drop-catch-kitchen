@@ -1,0 +1,74 @@
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+#main {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+#ui {
+  position: fixed;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background-color: transparent;
+  pointer-events: none;
+}
+#startMenu {
+  position: absolute;
+  transform: translate3d(-50%, -50%, 0);
+  top: 45%;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 100px;
+  background-color: azure;
+  padding: 20px;
+}
+#levelPicker {
+  position: absolute;
+  transform: translate3d(-50%, -50%, 0);
+  top: 45%;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 100px;
+  background-color: azure;
+  padding: 20px;
+}
+#inGameDashboard {
+  position: absolute;
+  right: 0;
+  margin: 5px;
+  justify-content: flex-end;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+#inGameMenu {
+  background-color: lightskyblue;
+  display: flex;
+  flex-direction: column;
+}
+#ordersQueue {
+}
+button {
+  pointer-events: auto;
+}
+#playButton button {
+}
+#pauseButton button {
+}

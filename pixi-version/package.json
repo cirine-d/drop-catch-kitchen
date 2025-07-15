@@ -7,7 +7,7 @@
     "start": "yarn install && vite --host"
   },
   "dependencies": {
-    "@inlet/react-pixi": "^6.8.0",
+    "@pixi/react": "^8.0.0",
     "pixi.js": "^8.10.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

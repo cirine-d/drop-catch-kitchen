@@ -1,5 +1,4 @@
-import { createRoot } from "react-dom/client";
+import { createRoot } from 'react-dom/client';
+import { App } from './App';
 
-createRoot(document.getElementById("main")).render(
-  <div>ITS THE PIXI VERSION</div>
-);
+createRoot(document.getElementById('main')).render(<App />);

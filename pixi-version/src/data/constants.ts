@@ -100,10 +100,7 @@ export const levels = {
   },
 };
 
-export const MENU_Z_INDEX = 8;
-export const LEVEL_Z_INDEX = 0;
 export const SCALE_DIVIDER = 150;
-export const CAMERA_Z_OFFSET = 5;
 
 export const GAME_PANEL = 'GamePanel';
 export const MENU_PANEL = 'MenuPanel';

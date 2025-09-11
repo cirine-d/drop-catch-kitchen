@@ -1,6 +1,6 @@
 import { appliancesDictionary, ingredientsDictionary, levels, ordersDictionary } from './constants';
 
-export type PlayerControls = 'left' | 'right' | 'up' | 'down' | null;
+export type BasketDirection = 'left' | 'right' | 'up' | 'down' | null;
 
 export type MenuAction = 'start' | 'pause';
 
@@ -65,4 +65,11 @@ export interface Appliance {
   cookingTimer?: number;
   pendingOrder?: OrderItem;
   specialBehaviour?: ApplianceBehaviour[];
+}
+
+export interface GameWindowBoundaries {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
 }

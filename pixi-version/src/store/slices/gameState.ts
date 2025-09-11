@@ -1,15 +1,18 @@
 import { StateCreator } from 'zustand';
 import { BoundSlices } from '..';
-import { GameStatus, IngredientName, Level, LevelName, Order } from '../../data/types';
+import { BasketDirection, GameStatus, IngredientName, Level, LevelName, Order } from '../../data/types';
 import { createAppliancesMap, generateWeightedInventoryFromMenu, isIngredientTransferPossible } from '../utils';
 import { levels } from '../../data/constants';
 import { isAcceptedIngredient, isApplianceName } from '../../utils';
+import { useTick } from '@pixi/react';
 
 export interface GameState {
   gameState: GameStatus;
   currentLevel: Level | undefined;
   gameTimer: number;
   inventory: Map<IngredientName, number> | undefined;
+  basketDirection: BasketDirection;
+  setBasketDirection: (direction: BasketDirection) => void;
   startLevel: (level: LevelName) => void;
   goToLevelPicker: () => void;
   pauseGame: () => void;
@@ -23,6 +26,9 @@ export const createGameStateSlice: StateCreator<BoundSlices, [], [], GameState> 
   currentLevel: undefined,
   gameTimer: 0,
   inventory: undefined,
+  basketDirection: null,
+
+  setBasketDirection: (direction: BasketDirection) => set({ basketDirection: direction } as any),
 
   startLevel: (levelName: LevelName) => {
     set({

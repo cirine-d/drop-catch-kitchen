@@ -2,10 +2,11 @@
   "compilerOptions": {
     "lib": ["dom", "dom.iterable", "esnext"],
     "target": "ESNext",
-    "types": ["vite/client"],
+    "types": ["vite/client", "matter-js", "@pixi/react", "pixi.js"],
     "isolatedModules": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "esModuleInterop": true
   }
 }

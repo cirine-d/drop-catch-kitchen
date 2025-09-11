@@ -8,14 +8,17 @@
   },
   "dependencies": {
     "@pixi/react": "^8.0.0",
+    "@vitejs/plugin-react": "^4.1.0",
+    "matter-js": "^0.20.0",
     "pixi.js": "^8.10.1",
+    "poly-decomp": "^0.3.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "vite-tsconfig-paths": "^4.2.1",
-    "@vitejs/plugin-react": "^4.1.0",
     "zustand": "^5.0.5"
   },
   "devDependencies": {
+    "@types/matter-js": "^0.20.0",
     "eslint": "^8.47.0",
     "prettier": "^3.0.3",
     "vite": "^4.4.11"

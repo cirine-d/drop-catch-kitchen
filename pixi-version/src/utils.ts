@@ -1,8 +1,10 @@
+import { Body } from 'matter-js';
 import { appliancesDictionary, ingredientsDictionary, levels, ordersDictionary } from './data/constants';
 import {
   ApplianceBehaviour,
   applianceBehaviours,
   ApplianceName,
+  BasketDirection,
   IngredientName,
   LevelName,
   OrderName,
@@ -30,6 +32,29 @@ export const getApplianceNameFromId = (id: string): ApplianceName => {
   }
 
   return name;
+};
+
+export const getDirectionFromKey = (event): BasketDirection => {
+  switch (event.code) {
+    case 'KeyA':
+      return 'left';
+    case 'ArrowLeft':
+      return 'left';
+    case 'KeyD':
+      return 'right';
+    case 'ArrowRight':
+      return 'right';
+    case 'KeyW':
+      return 'up';
+    case 'ArrowUp':
+      return 'up';
+    case 'KeyS':
+      return 'down';
+    case 'ArrowDown':
+      return 'down';
+    default:
+      null;
+  }
 };
 
 //TYPEGUARDS
@@ -70,4 +95,15 @@ export const isAcceptedIngredient = (
     return true;
   }
   return false;
+};
+
+export const restrictBodyMovementsToWindow = (body: Matter.Body) => {
+  if (body.position.x < 0 + 50) {
+    Body.setPosition(body, { x: 0 + 50, y: body.position.y });
+    Body.setVelocity(body, { x: 0, y: 0 });
+  }
+  if (body.position.x > window.innerWidth - 50) {
+    Body.setPosition(body, { x: window.innerWidth - 50, y: body.position.y });
+    Body.setVelocity(body, { x: 0, y: 0 });
+  }
 };

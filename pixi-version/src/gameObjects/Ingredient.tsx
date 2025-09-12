@@ -12,7 +12,7 @@ interface Props {
 }
 
 export const Ingredient: FC<Props> = (props: Props) => {
-  const { world } = useBoundStore();
+  const { physicsWorld } = useBoundStore();
   const [texture, setTexture] = useState(Texture.EMPTY);
 
   const physicsBody = useMemo(
@@ -45,7 +45,7 @@ export const Ingredient: FC<Props> = (props: Props) => {
 
   useEffect(() => {
     Body.translate(physicsBody, { x: props.startPosition.x, y: props.startPosition.y });
-    Composite.add(world, [physicsBody]);
+    Composite.add(physicsWorld, [physicsBody]);
   }, [physicsBody]);
 
   const { spriteRef, updateSprite } = useSyncSpriteToMatter(physicsBody, sprite);
@@ -54,5 +54,5 @@ export const Ingredient: FC<Props> = (props: Props) => {
     updateSprite();
   });
 
-  return <pixiSprite texture={texture} anchor={0.5} scale={0.2} ref={spriteRef} />;
+  return <pixiSprite texture={texture} anchor={0.5} scale={0.2} ref={spriteRef} zIndex={5} />;
 };

@@ -1,7 +1,7 @@
 import Matter, { Bodies, Body, Common, Engine, Events, Render, Runner, World } from 'matter-js';
 import { useRef, useEffect } from 'react';
 import { Application, extend } from '@pixi/react';
-import { Container, Sprite } from 'pixi.js';
+import { Container, Graphics, Sprite } from 'pixi.js';
 import { UI } from './UI';
 import { Scene } from './Scene';
 import { useBoundStore } from './store';
@@ -10,10 +10,11 @@ import { useBoundStore } from './store';
 extend({
   Container,
   Sprite,
+  Graphics,
 });
 
 export const App = () => {
-  const { engine, world } = useBoundStore();
+  const { engine, physicsWorld } = useBoundStore();
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -46,7 +47,7 @@ export const App = () => {
   return (
     <>
       <UI />
-      <Application background={'#1099bb'} resizeTo={window}>
+      <Application background={'#1099bb'} resizeTo={window} useBackBuffer={true}>
         <Scene />
       </Application>
 

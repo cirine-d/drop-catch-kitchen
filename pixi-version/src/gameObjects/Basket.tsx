@@ -14,7 +14,7 @@ import { IngredientName } from '../data/types';
 export const Basket: FC = () => {
   const {
     engine,
-    world,
+    physicsWorld,
     appliances,
     activeApplianceId,
     gameState,
@@ -35,12 +35,12 @@ export const Basket: FC = () => {
   const [basketEmptyTexture, setbasketEmptyTexture] = useState(Texture.EMPTY);
   const [basketFulltexture, setbasketFulltexture] = useState(Texture.EMPTY);
 
-  const startPosition = { x: gameBoundaries.left + 100, y: gameBoundaries.bottom - 100 };
+  const startPosition = { x: gameBoundaries.left + 100, y: gameBoundaries.bottom - 240 };
   const activeAppliance = useMemo(() => appliances.get(activeApplianceId), [appliances, activeApplianceId]);
 
   useEffect(() => {
     Composite.translate(BasketMatter, { x: startPosition.x, y: startPosition.y });
-    Composite.add(world, [BasketMatter]);
+    Composite.add(physicsWorld, [BasketMatter]);
 
     if (basketEmptyTexture === Texture.EMPTY) {
       Assets.load('assets/basketEmpty.png').then(result => {
@@ -59,14 +59,13 @@ export const Basket: FC = () => {
 
   const { spriteRef, updateSprite } = useSyncSpriteToMatter(basketBody, basketGroupRef.current, {
     disableRotationSync: true,
-    // positionOffset: { x: 0, y: -10 },
   });
-  console.log(basketContent);
+
   Events.on(engine, 'beforeUpdate', () => basketBodyRef.current.forEach(restrictBodyMovementsToWindow));
 
   const handleIngredientCaught = useCallback(
     (ingredientName: IngredientName, physicsId: number) => {
-      removeBody(world.bodies.find(body => body.id === physicsId));
+      removeBody(physicsWorld.bodies.find(body => body.id === physicsId));
       const syncedSprite = app.stage.children.find(child => child.label === physicsId.toString());
       app.stage.removeChild(syncedSprite);
       if (isIngredientName(ingredientName)) {
@@ -81,8 +80,8 @@ export const Basket: FC = () => {
       const { bodyA, bodyB } = pair;
 
       if (
-        (isIngredientName(bodyA.label) && bodyB.label === 'basketSensor') ||
-        (bodyA.label === 'basketSensor' && isIngredientName(bodyB.label))
+        (isIngredientName(bodyA.label) && bodyB.label === 'basketIngredientSensor') ||
+        (bodyA.label === 'basketIngredientSensor' && isIngredientName(bodyB.label))
       ) {
         const caughtBody = isIngredientName(bodyA.label) ? bodyA : bodyB;
         handleIngredientCaught(caughtBody.label, caughtBody.id);
@@ -132,7 +131,7 @@ export const Basket: FC = () => {
     <>
       {basketContent[0] !== undefined && (
         <IngredientSprite
-          position={[-0.6, 0.3, 0.8]}
+          position={{ x: 1.4, y: 0.3 }}
           ingredientName={basketContent[0]}
           isActive={
             activeAppliance
@@ -147,7 +146,7 @@ export const Basket: FC = () => {
       )}
       {basketContent[1] !== undefined && (
         <IngredientSprite
-          position={[0, 0.3, 1]}
+          position={{ x: 0.5, y: 0.3 }}
           ingredientName={basketContent[1]}
           isActive={
             activeAppliance
@@ -162,7 +161,7 @@ export const Basket: FC = () => {
       )}
       {basketContent[2] !== undefined && (
         <IngredientSprite
-          position={[0.6, 0.3, 0.8]}
+          position={{ x: -1.4, y: 0.3 }}
           ingredientName={basketContent[2]}
           isActive={
             activeAppliance
@@ -178,9 +177,11 @@ export const Basket: FC = () => {
     </>
   );
 
+  //TODO zIndex not working properly
   return (
-    <pixiContainer isRenderGroup={true} scale={{ x: 0.3, y: 0.3 }} ref={spriteRef}>
-      <pixiSprite texture={isBasketFull() ? basketFulltexture : basketEmptyTexture} anchor={0.5} />
+    <pixiContainer isRenderGroup={true} scale={{ x: 0.35, y: 0.35 }} ref={spriteRef}>
+      <pixiSprite texture={basketFulltexture} zIndex={2} anchor={{ x: 0.5, y: 0.7 }} visible={isBasketFull()} />
+      <pixiSprite texture={basketEmptyTexture} zIndex={8} anchor={{ x: 0.5, y: 0.7 }} visible={!isBasketFull()} />
       <BasketContentDisplay />
     </pixiContainer>
   );

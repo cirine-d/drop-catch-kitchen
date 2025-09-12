@@ -14,13 +14,6 @@ export const useSyncSpriteToMatter = (
       spriteRef.current.position.set(bodyRef.current.position.x, bodyRef.current.position.y);
       spriteRef.current.rotation = options?.disableRotationSync ? spriteRef.current.rotation : bodyRef.current.angle;
       spriteRef.current.label = bodyRef.current.id.toString();
-
-      // if (options?.positionOffset) {
-      //   spriteRef.current.position.set(
-      //     bodyRef.current.position.x + options.positionOffset.x,
-      //     bodyRef.current.position.y + options.positionOffset.y
-      //   );
-      // }
     }
   }, [spriteRef.current, bodyRef.current]);
 

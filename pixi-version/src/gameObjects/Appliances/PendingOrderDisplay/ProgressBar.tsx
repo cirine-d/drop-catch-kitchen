@@ -1,40 +1,53 @@
-// import { GroupProps, Vector3 } from '@react-three/fiber';
-// import React, { useState, useEffect } from 'react';
-// import { colours } from '../../../data/constants';
+import { FC, useEffect, useState } from 'react';
+import { colours } from '../../../data/constants';
 
-// interface Props extends Pick<GroupProps, 'position'> {
-//   cookingTime: number; // Time in seconds
-// }
+interface Props {
+  x: number;
+  y: number;
+  cookingTime: number; // time in seconds
+}
 
-// export const ProgressBar: React.FC<Props> = props => {
-//   const [progress, setProgress] = useState(0);
-//   const [greenProgressXPos, setGreenProgressXPos] = useState(-0.5 + progress / 100);
-//   const [greenProgressWidth, setGreenProgressWidth] = useState((progress / 100) * 0.5);
+export const ProgressBar: FC<Props> = ({ x, y, cookingTime }) => {
+  const [progress, setProgress] = useState(0);
 
-//   useEffect(() => {
-//     setProgress(prev => prev + 100 / props.cookingTime);
+  useEffect(() => {
+    if (progress >= 100) return;
 
-//     if (props.cookingTime <= 0) {
-//       setProgress(100);
-//     }
+    const interval = setInterval(() => {
+      setProgress(prev => {
+        const next = prev + 100 / (cookingTime * 60); // assuming ~60fps
+        return next >= 100 ? 100 : next;
+      });
+    }, 1000 / 60);
 
-//     const greenProgressWidthDiff = (progress / 100) * 0.5 - greenProgressWidth;
+    return () => clearInterval(interval);
+  }, [cookingTime, progress]);
 
-//     setGreenProgressXPos(prev => prev + greenProgressWidthDiff / 2);
-//     setGreenProgressWidth((progress / 100) * 0.5);
-//   }, [props.cookingTime]);
+  return (
+    <>
+      {/* background bar */}
+      <pixiGraphics
+        x={x}
+        y={y}
+        draw={g => {
+          g.clear();
+          g.fill(colours.GREIGE);
+          g.rect(0, 0, 100, 10); // base grey bar
+          g.fill();
+        }}
+      />
 
-//   return (
-//     <group position={props.position}>
-//       <mesh position={[0, 0, 0]}>
-//         <planeGeometry args={[1, 0.1]} />
-//         <meshBasicMaterial color={colours.GREIGE} />
-//       </mesh>
-
-//       <mesh position={[greenProgressXPos, 0, 0]}>
-//         <planeGeometry args={[greenProgressWidth, 0.1]} />
-//         <meshBasicMaterial color={colours.GREEN} />
-//       </mesh>
-//     </group>
-//   );
-// };
+      {/* progress fill */}
+      <pixiGraphics
+        x={x}
+        y={y}
+        draw={g => {
+          g.clear();
+          g.fill(colours.GREEN);
+          g.rect(0, 0, (progress / 100) * 100, 10);
+          g.fill();
+        }}
+      />
+    </>
+  );
+};

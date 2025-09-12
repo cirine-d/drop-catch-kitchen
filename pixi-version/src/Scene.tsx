@@ -10,6 +10,7 @@ import { useBoundStore } from './store';
 import { useApplication, useTick } from '@pixi/react';
 import { Container } from 'pixi.js';
 import { useGameWindowBoundaries } from './store/utilityHooks';
+import AppliancesBar from './gameObjects/Appliances/AppliancesBar';
 
 export const Scene: FC = () => {
   const gameBoundaries = useGameWindowBoundaries();
@@ -58,9 +59,7 @@ export const Scene: FC = () => {
     <>
       {fallingIngredients.map(ingredient => ingredient)}
       {gameState !== 'startMenu' && <Basket />}
-      {/* {appliances !== undefined ? (
-        <AppliancesBar appliances={appliances} boundariesRef={gamePanelBoundariesRef} />
-        ) : null} */}
+      {appliances !== undefined ? <AppliancesBar appliances={appliances} /> : null}
       {/* development tools */}
       {/* development tools */}
     </>

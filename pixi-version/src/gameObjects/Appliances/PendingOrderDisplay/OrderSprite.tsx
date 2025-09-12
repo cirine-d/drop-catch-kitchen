@@ -1,38 +1,50 @@
-// import { TextureLoader, Vector3 } from 'three';
-// import { SpriteProps, useLoader } from '@react-three/fiber';
+import { FC, useState, useEffect } from 'react';
+import { Assets, ColorDodgeBlend, Texture } from 'pixi.js';
 
-// interface Props extends SpriteProps {
-//   orderPic: string;
-//   cookingTimer?: number;
-// }
+interface Props {
+  orderPic: string;
+  cookingTimer?: number;
+}
 
-// export const OrderSprite: React.FC<Props> = props => {
-//   const texture = useLoader(TextureLoader, props.orderPic);
-//   const glowTexture = useLoader(TextureLoader, 'assets/ingredients/glow.png');
-//   const pendingOverlay = useLoader(TextureLoader, 'assets/pendingIcon.png');
+export const OrderSprite: FC<Props> = props => {
+  const [texture, setTexture] = useState(Texture.EMPTY);
+  const [glowTexture, setGlowTexture] = useState(Texture.EMPTY);
+  const [pendingOverlay, setPendingOverlay] = useState(Texture.EMPTY);
 
-//   return (
-//     <>
-//       {props.cookingTimer === 0 && (
-//         <>
-//           <sprite {...props} scale={1}>
-//             <spriteMaterial map={glowTexture} />
-//           </sprite>
-//           <sprite {...props} scale={0.5}>
-//             <spriteMaterial map={texture} />
-//           </sprite>
-//         </>
-//       )}
-//       {props.cookingTimer > 0 && (
-//         <>
-//           <sprite {...props} scale={0.5}>
-//             <spriteMaterial map={texture} />
-//           </sprite>
-//           <sprite position={[0.5, 0.5, 1]} scale={0.2}>
-//             <spriteMaterial map={pendingOverlay} />
-//           </sprite>
-//         </>
-//       )}
-//     </>
-//   );
-// };
+  useEffect(() => {
+    if (texture === Texture.EMPTY) {
+      Assets.load(props.orderPic).then(result => {
+        setTexture(result);
+      });
+    }
+
+    if (glowTexture === Texture.EMPTY) {
+      Assets.load('assets/ingredients/glow.png').then(result => {
+        setGlowTexture(result);
+      });
+    }
+
+    if (pendingOverlay === Texture.EMPTY) {
+      Assets.load('assets/ingredients/pendingIcon.png').then(result => {
+        setPendingOverlay(result);
+      });
+    }
+  }, []);
+
+  return (
+    <>
+      {props.cookingTimer === 0 && (
+        <>
+          <pixiSprite texture={glowTexture} anchor={0.5} scale={0.3} zIndex={10} />
+          <pixiSprite texture={texture} anchor={0.5} scale={0.3} zIndex={9} />
+        </>
+      )}
+      {props.cookingTimer > 0 && (
+        <>
+          <pixiSprite texture={pendingOverlay} anchor={props.position} scale={0.3} zIndex={9} />
+          <pixiSprite texture={texture} anchor={0.5} scale={0.3} zIndex={9} />
+        </>
+      )}
+    </>
+  );
+};

@@ -1,4 +1,4 @@
-import { Bodies, Body, Common, Composite, Events, Vertices } from 'matter-js';
+import { Bodies, Body, Common, Composite, Constraint, Events, Vertices } from 'matter-js';
 
 import polyDecomp from 'poly-decomp';
 Common.setDecomp(polyDecomp);
@@ -16,8 +16,8 @@ var basketBody = Bodies.fromVertices(0, 0, [basketVertices], {
   inverseMass: 0,
 });
 
-const sensor = Bodies.rectangle(0, 0, 2, 30, {
-  label: 'basketSensor',
+const ingredientSensor = Bodies.rectangle(0, 0, 2, 30, {
+  label: 'basketIngredientSensor',
   isStatic: true,
   isSensor: true, // 👈 key: does not cause collisions, only triggers events
   frictionAir: 0,
@@ -30,11 +30,23 @@ const basketLid = Bodies.rectangle(0, -60, 2, 40, {
   isStatic: true,
   isSensor: true,
   frictionAir: 0,
-  mass: Infinity,
-  inverseMass: 0,
 });
 
-const bodies = [basketBody, sensor, basketLid];
+const applianceSensor = Bodies.rectangle(0, 50, 10, 20, {
+  label: 'basketApplianceSensor',
+  isSensor: true,
+  isStatic: false,
+});
+
+// Constraint links sensor to basket
+const basketConstraint = Constraint.create({
+  label: 'constraint',
+  bodyA: basketBody,
+  bodyB: applianceSensor,
+  stiffness: 1,
+});
+
+const bodies = [basketBody, ingredientSensor, basketLid, applianceSensor];
 
 bodies.forEach(body => {
   Body.scale(body, 2, 2);
@@ -42,4 +54,4 @@ bodies.forEach(body => {
 });
 
 export const BasketMatter = Composite.create({ label: 'basket' });
-Composite.add(BasketMatter, bodies);
+Composite.add(BasketMatter, [...bodies, basketConstraint]);

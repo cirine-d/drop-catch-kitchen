@@ -4,7 +4,7 @@ import { Body, Engine, Runner, World } from 'matter-js';
 
 export interface GamePhysics {
   engine: Engine;
-  world: World;
+  physicsWorld: World;
   addBody: (body: Body) => void;
   removeBody: (body: Body) => void;
   updatePhysics: (delta: number) => void;
@@ -17,14 +17,14 @@ export const createGamePhysicsSlice: StateCreator<BoundSlices, [], [], GamePhysi
 
   return {
     engine,
-    world: engine.world,
+    physicsWorld: engine.world,
 
     addBody: (body: Body) => {
-      World.add(get().world, body);
+      World.add(get().physicsWorld, body);
     },
 
     removeBody: (body: Body) => {
-      World.remove(get().world, body);
+      World.remove(get().physicsWorld, body);
     },
 
     updatePhysics: (delta: number) => {

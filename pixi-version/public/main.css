@@ -67,7 +67,7 @@ body {
   flex-direction: column;
 }
 #ordersQueue {
-  background-color: rgb(166, 77, 42);
+  background-color: rgb(255, 232, 223);
 }
 button {
   pointer-events: auto;

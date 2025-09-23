@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { Assets, BlurFilter, ColorDodgeBlend, Sprite, Texture } from 'pixi.js';
 import { Bodies, Body, Composite, Events } from 'matter-js';
 import { APPLIANCES, BASKET_SENSOR, appliancesDictionary } from '../../data/constants';
-import { getApplianceNameFromId, isOrderName } from '../../utils';
+import { getApplianceNameFromId } from '../../utils';
 import { Appliance as IAppliance } from '../../data/types';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { IngredientSprite } from '../IngredientSprite';
@@ -118,10 +118,10 @@ export const Appliance: FC<Props> = props => {
           )}
         </>
       )}
-      {appliance.pendingOrder !== undefined && (
+      {appliance.pendingMenuItem !== undefined && (
         <PendingOrderDisplay
           applianceId={props.applianceId}
-          orderPic={appliance.pendingOrder.picture}
+          orderPic={appliance.pendingMenuItem.picture}
           cookingTimer={appliance.cookingTimer}
         />
       )}

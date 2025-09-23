@@ -1,5 +1,5 @@
 import { StateCreator } from 'zustand';
-import { Appliance, ContentUpdateMode, IngredientName, OrderItem } from '../../data/types';
+import { Appliance, ContentUpdateMode, IngredientName, MenuItem } from '../../data/types';
 import { applyContentLimitToArray } from '../../utils';
 import { BoundSlices } from '..';
 
@@ -9,8 +9,8 @@ export interface Appliances {
   setAppliances: (appliances: Map<string, Appliance>) => void;
   setActiveAppliance: (applianceId: string) => void;
   setApplianceContent?: (applianceId: string, updateMode: ContentUpdateMode, ingredients: IngredientName[]) => void;
-  startCooking?: (applianceId: string, possibleOrder: OrderItem) => void;
-  collectPendingOrder?: (applianceId: string) => void;
+  startCooking?: (applianceId: string, possibleOrder: MenuItem) => void;
+  collectPendingMenuItem?: (applianceId: string) => void;
 }
 
 export const createAppliancesSlice: StateCreator<BoundSlices, [], [], Appliances> = (set, get) => ({
@@ -47,14 +47,14 @@ export const createAppliancesSlice: StateCreator<BoundSlices, [], [], Appliances
       return { appliances: newAppliances };
     }),
 
-  startCooking: (applianceId: string, possibleOrder: OrderItem) =>
+  startCooking: (applianceId: string, possibleOrder: MenuItem) =>
     set(state => {
       const newAppliances = new Map(state.appliances);
       const appliance = newAppliances.get(applianceId);
 
       if (appliance) {
         appliance.content = [];
-        appliance.pendingOrder = possibleOrder;
+        appliance.pendingMenuItem = possibleOrder;
         appliance.cookingTimer = possibleOrder.cookingTime;
       }
 
@@ -69,13 +69,14 @@ export const createAppliancesSlice: StateCreator<BoundSlices, [], [], Appliances
       return { appliances: newAppliances };
     }),
 
-  collectPendingOrder: (applianceId: string) =>
+  collectPendingMenuItem: (applianceId: string) =>
     set(state => {
       const newAppliances = new Map(state.appliances);
       const appliance = newAppliances.get(applianceId);
 
-      if (appliance.pendingOrder !== undefined && appliance.cookingTimer === 0) {
-        appliance.pendingOrder = undefined;
+      if (appliance.pendingMenuItem !== undefined && appliance.cookingTimer === 0) {
+        get().tryMatchMenuItemToPendingOrders(appliance.pendingMenuItem.name);
+        appliance.pendingMenuItem = undefined;
       }
       return { appliances: newAppliances };
     }),

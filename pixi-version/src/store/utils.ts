@@ -1,14 +1,14 @@
-import { appliancesDictionary, ordersDictionary as untypedOrdersDictionary } from '../data/constants';
-import { Appliance, ApplianceName, IngredientName, OrderItem, OrderName } from '../data/types';
+import { appliancesDictionary, menuItemDictionary as untypedOrdersDictionary } from '../data/constants';
+import { Appliance, ApplianceName, IngredientName, MenuItem, MenuItemName } from '../data/types';
 import { isAcceptedIngredient, isApplianceBehaviour, isIngredientName } from '../utils';
 
-const ordersDictionary = untypedOrdersDictionary as Record<OrderName, OrderItem>;
+const menuItemDictionary = untypedOrdersDictionary as Record<MenuItemName, MenuItem>;
 
-export const generateWeightedInventoryFromMenu = (menu: Map<OrderName, number>): Map<IngredientName, number> => {
+export const generateWeightedInventoryFromMenu = (menu: Map<MenuItemName, number>): Map<IngredientName, number> => {
   const weightedInventory: Map<IngredientName, number> = new Map();
 
   menu.forEach((orderWeight, orderName) => {
-    const orderDetails = ordersDictionary[orderName];
+    const orderDetails = menuItemDictionary[orderName];
     if (!orderDetails) return;
 
     Object.entries(orderDetails.recipe).forEach(([ingredient, quantity]) => {
@@ -40,11 +40,11 @@ export const generateWeightedInventoryFromMenu = (menu: Map<OrderName, number>):
 };
 
 export const createAppliancesMap = (
-  menu: Map<OrderName, number>,
+  menu: Map<MenuItemName, number>,
   extraAppliances: ApplianceName[]
 ): Map<string, Appliance> => {
   const appliancesMap = new Map<string, Appliance | undefined>();
-  const allAppliances = Array.from(menu).map(([orderName]) => ordersDictionary[orderName].appliance);
+  const allAppliances = Array.from(menu).map(([orderName]) => menuItemDictionary[orderName].appliance);
   const applianceNames = [...new Set(allAppliances), ...extraAppliances];
 
   applianceNames.forEach((name, index) => {
@@ -55,7 +55,7 @@ export const createAppliancesMap = (
 };
 
 const createApplianceObject = (applianceName: ApplianceName): Appliance => {
-  const acceptedIngredients: IngredientName[] = Object.values(ordersDictionary)
+  const acceptedIngredients: IngredientName[] = Object.values(menuItemDictionary)
     .filter(order => order.appliance === applianceName)
     .flatMap(order => Object.keys(order.recipe))
     .filter(isIngredientName);
@@ -99,30 +99,30 @@ export const isIngredientTransferPossible = (
 export const findPossibleOrder = (
   content: IngredientName[],
   applianceName: ApplianceName,
-  menu: OrderName[]
-): OrderItem => {
+  menu: MenuItemName[]
+): MenuItem => {
   const contentRecord: Partial<Record<IngredientName, number>> = content.reduce((acc, ingredient) => {
     acc[ingredient] = (acc[ingredient] || 0) + 1;
     return acc;
   }, {});
-  const ordersFilteredByAppliance = menu.filter(orderName => ordersDictionary[orderName].appliance === applianceName);
+  const ordersFilteredByAppliance = menu.filter(orderName => menuItemDictionary[orderName].appliance === applianceName);
   if (ordersFilteredByAppliance.length === 0) {
-    return ordersDictionary['failedOrder'];
+    return menuItemDictionary['failedOrder'];
   }
 
   const ordersFilteredByIngredients = ordersFilteredByAppliance.filter(order =>
-    areRecordsEqual(contentRecord, ordersDictionary[order].recipe)
+    areRecordsEqual(contentRecord, menuItemDictionary[order].recipe)
   );
 
   if (ordersFilteredByIngredients.length === 0) {
-    return ordersDictionary['failedOrder'];
+    return menuItemDictionary['failedOrder'];
   }
 
   if (ordersFilteredByIngredients.length > 1) {
     throw new Error('findPossibleOrder function found more than 1 match');
   }
 
-  return ordersDictionary[ordersFilteredByIngredients[0]];
+  return menuItemDictionary[ordersFilteredByIngredients[0]];
 };
 
 const areRecordsEqual = (record1: Record<string, number>, record2: Record<string, number>): boolean => {

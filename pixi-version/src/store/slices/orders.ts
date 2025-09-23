@@ -1,55 +1,86 @@
 import { StateCreator } from 'zustand';
-import { ContentUpdateMode, IngredientName, Order, OrderName } from '../../data/types';
+import {
+  ContentUpdateMode,
+  IngredientName,
+  Order,
+  MenuItemName,
+  CustomerName,
+  MenuItem,
+  Customer,
+  PendingMenuItem,
+} from '../../data/types';
 import { BoundSlices } from '..';
-import { generateItemFromWeightedList } from '../../utils';
-import { ordersDictionary } from '../../data/constants';
+import { generateCustomerOrder, generateItemFromWeightedList } from '../../utils';
+import { customerDictionary, menuItemDictionary, ordersDictionary } from '../../data/constants';
+import { OrdersQueue } from '../../UI/OrdersQueue';
+
+const orderQueueLimit = 4;
 
 export interface Orders {
   orderQueue: Order[];
-  orderSchedulingTimeout: number | null;
-  scheduleNextOrder: () => void;
+  orderSchedulingInterval: number | null;
+  addOrder: () => void;
+  removeOrder: (orderId: string) => void;
+  startOrderScheduling: () => void;
   stopOrderScheduling: () => void;
-  updateOrderTimers: () => void;
-  tryMarkOrderCompleted: (orderName: OrderName) => boolean;
+  updateOrderTimersAndStatus: () => void;
+  tryMatchMenuItemToPendingOrders: (orderName: MenuItemName) => void;
 }
 
 export const createOrdersSlice: StateCreator<BoundSlices, [], [], Orders> = (set, get) => ({
   orderQueue: [],
-  orderSchedulingTimeout: null,
+  orderSchedulingInterval: null,
+  addOrder: () => {
+    const menu = get().currentLevel.menu;
+    const customers = get().currentLevel.customers;
+    const customer: Customer = customerDictionary[generateItemFromWeightedList<CustomerName>(customers)];
+    const possibleOrdersForLevel = get().currentLevel.allowedOrders;
+    const orderedItems = generateCustomerOrder(menu, possibleOrdersForLevel, customer.orderPreferrence);
 
-  scheduleNextOrder: () => {
-    const addOrder = () => {
-      const menu = get().currentLevel.menu;
-      const orderName = generateItemFromWeightedList<OrderName>(menu);
-      const order: Order = {
-        name: orderName,
-        timer: ordersDictionary[orderName].cookingTime,
-        status: 'pending',
-        picture: ordersDictionary[orderName].picture,
-        price: ordersDictionary[orderName].price,
-      };
-      get().orderQueue.push(order);
-      console.log(get().orderQueue, 'hii');
+    const pendingItems: PendingMenuItem[] = [];
+    let timeAllowedForOrder = 60;
+    let totalPrice = 0;
+    orderedItems.forEach(item => {
+      timeAllowedForOrder += menuItemDictionary[item].cookingTime;
+      totalPrice += menuItemDictionary[item].price;
+      pendingItems.push({ name: item, fulfilled: false });
+    });
+    // TODO add patienceRating effect on timeallowed
+
+    const order: Order = {
+      id: crypto.randomUUID(),
+      pendingItems: pendingItems,
+      timer: timeAllowedForOrder,
+      totalPrice: totalPrice,
+      status: 'pending',
+      menuItemPictures: orderedItems.map(item => menuItemDictionary[item].picture),
+      customerPicture: customer.picture,
     };
+    get().orderQueue.push(order);
+  },
 
-    const randomDelay = Math.random() * 8000 + 3000;
-    const schedulingTimeout = setTimeout(() => {
-      addOrder();
-      get().scheduleNextOrder();
-    }, randomDelay);
+  removeOrder: (orderId: string) => {
+    const updatedOrderQueue = [...get().orderQueue].filter(order => order.id !== orderId);
+    set({ orderQueue: updatedOrderQueue });
+  },
 
-    set({ orderSchedulingTimeout: schedulingTimeout });
+  startOrderScheduling: () => {
+    const interval = setInterval(() => {
+      if (Math.random() < 0.7 && get().orderQueue.length <= orderQueueLimit - 1) {
+        // 70% chance this tick spawns an order
+        get().addOrder();
+      }
+    }, 2000);
+
+    set({ orderSchedulingInterval: interval });
   },
 
   stopOrderScheduling: () => {
-    const schedulingTimeout = get().orderSchedulingTimeout;
-    if (schedulingTimeout !== null) {
-      clearTimeout(schedulingTimeout);
-      set({ orderSchedulingTimeout: null });
-    }
+    clearInterval(get().orderSchedulingInterval);
+    set({ orderSchedulingInterval: null });
   },
 
-  updateOrderTimers: () => {
+  updateOrderTimersAndStatus: () => {
     get().orderQueue.forEach((order, index) => {
       if (order.status === 'pending' && order.timer > 0) {
         order.timer--;
@@ -57,29 +88,43 @@ export const createOrdersSlice: StateCreator<BoundSlices, [], [], Orders> = (set
 
       if (order.timer === 0) {
         order.status = 'timedOut';
+      }
+
+      if (order.status === 'timedOut' || order.status === 'completed') {
         setTimeout(() => {
-          const updatedOrderQueue = get().orderQueue;
-          updatedOrderQueue.splice(index, 1);
-          set({ orderQueue: updatedOrderQueue });
+          get().removeOrder(order.id);
         }, 1000);
       }
     });
   },
 
-  tryMarkOrderCompleted: (orderName: OrderName) => {
-    const orderIndex = get().orderQueue.findIndex(order => order.name === orderName);
+  tryMatchMenuItemToPendingOrders: (menuItem: MenuItemName) => {
+    const { orderQueue, profitMade } = get();
 
-    if (orderIndex !== -1) {
-      const updatedOrderQueue = get().orderQueue;
+    // Sort order queue by smallest timer first
+    const sortedQueue = [...orderQueue].sort((a, b) => a.timer - b.timer);
 
-      updatedOrderQueue.splice(orderIndex, 1);
+    const matchedOrder = sortedQueue.find(order =>
+      order.pendingItems.some(item => item.name === menuItem && !item.fulfilled)
+    );
 
-      set({
-        orderQueue: updatedOrderQueue,
-      });
-      return true;
+    if (matchedOrder === undefined) {
+      const penalty = menuItemDictionary[menuItem]?.price ?? 1;
+      set({ profitMade: profitMade - penalty });
+      return;
     }
 
-    return false;
+    const matchedItemIndex = matchedOrder.pendingItems.findIndex(item => item.name === menuItem && !item.fulfilled);
+    matchedOrder.pendingItems[matchedItemIndex].fulfilled = true;
+
+    const isAllPendingItemsFulfilled = matchedOrder.pendingItems.every(item => item.fulfilled === true);
+
+    if (isAllPendingItemsFulfilled) {
+      matchedOrder.status = 'completed';
+      set({ profitMade: profitMade + matchedOrder.totalPrice });
+    }
+
+    const indexToUpdate = orderQueue.findIndex(order => order.id === matchedOrder.id);
+    orderQueue.splice(indexToUpdate, 1, matchedOrder);
   },
 });

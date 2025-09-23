@@ -2,7 +2,7 @@ import React from 'react';
 import { useBoundStore } from '../store';
 
 export const InGameMenu: React.FC = () => {
-  const { gameState, pauseGame, unpauseGame, gameTimer } = useBoundStore();
+  const { gameState, pauseGame, unpauseGame, gameTimer, profitMade } = useBoundStore();
   return (
     <div id="inGameMenu">
       {gameState === 'paused' ? (
@@ -14,7 +14,9 @@ export const InGameMenu: React.FC = () => {
           PAUSE
         </button>
       )}
-      {`${gameTimer} seconds left`}
+      <div>{`${gameTimer} seconds left`}</div>
+      <div>{`${profitMade} $$$`}</div>
+
       <div></div>
     </div>
   );

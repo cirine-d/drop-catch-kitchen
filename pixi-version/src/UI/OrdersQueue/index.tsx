@@ -4,11 +4,10 @@ import { Order } from './Order';
 
 export const OrdersQueue: React.FC = () => {
   const { orderQueue } = useBoundStore();
-  console.log(orderQueue);
   return (
     <div id="ordersQueue">
       {orderQueue.map(order => (
-        <Order order={order} />
+        <Order order={order} key={order.id} />
       ))}
     </div>
   );

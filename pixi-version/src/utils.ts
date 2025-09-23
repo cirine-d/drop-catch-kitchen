@@ -1,12 +1,20 @@
 import { Body } from 'matter-js';
-import { appliancesDictionary, ingredientsDictionary, levels, ordersDictionary } from './data/constants';
+import {
+  appliancesDictionary,
+  ingredientsDictionary,
+  levels,
+  menuItemDictionary,
+  ordersDictionary,
+} from './data/constants';
 import {
   ApplianceBehaviour,
   applianceBehaviours,
   ApplianceName,
   BasketDirection,
   IngredientName,
+  Level,
   LevelName,
+  MenuItemName,
   OrderName,
 } from './data/types';
 
@@ -21,7 +29,9 @@ export const generateItemFromWeightedList = <T>(weightedList: Map<T, number>): T
   const r = Math.random();
   for (const [key, value] of weightedList.entries()) {
     sum += value;
-    if (r <= sum) return key;
+    if (r <= sum) {
+      return key;
+    }
   }
 };
 
@@ -30,8 +40,30 @@ export const getApplianceNameFromId = (id: string): ApplianceName => {
   if (!isApplianceName(name)) {
     throw new Error('Appliance id does not contain valid appliance name');
   }
-
   return name;
+};
+
+export const generateCustomerOrder = (
+  menu: Map<MenuItemName, number>,
+  allowedOrders: OrderName[],
+  customerPreferrences: OrderName[]
+): MenuItemName[] => {
+  const possibleCustomerOrder = customerPreferrences.filter(order => allowedOrders.includes(order));
+  const customerOrderCategories =
+    ordersDictionary[possibleCustomerOrder[Math.floor(Math.random() * possibleCustomerOrder.length)]];
+
+  let orderedItems: MenuItemName[] = [];
+  customerOrderCategories.forEach(category => {
+    const availableMenuInCategory = new Map(
+      Array.from(menu.entries()).filter(([itemName]) => {
+        return menuItemDictionary[itemName].category === category;
+      })
+    );
+
+    orderedItems.push(generateItemFromWeightedList<MenuItemName>(availableMenuInCategory));
+  });
+
+  return orderedItems;
 };
 
 export const getDirectionFromKey = (event): BasketDirection => {
@@ -66,8 +98,8 @@ export const isApplianceName = (value: string): value is ApplianceName => {
   return Object.keys(appliancesDictionary).includes(value);
 };
 
-export const isOrderName = (value: string): value is OrderName => {
-  return Object.keys(ordersDictionary).includes(value);
+export const isMenuItemName = (value: string): value is MenuItemName => {
+  return Object.keys(menuItemDictionary).includes(value);
 };
 
 export const isLevelName = (value: string): value is LevelName => {

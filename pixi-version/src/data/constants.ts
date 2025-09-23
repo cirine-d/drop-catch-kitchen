@@ -1,4 +1,4 @@
-import { OrderName } from './types';
+import { Customer, CustomerName, Level, MenuItem, MenuItemCategory, MenuItemName, OrderName } from './types';
 
 //No typings for these as we are building types from these constants
 export const colours = {
@@ -27,6 +27,18 @@ export const ingredientsDictionary = {
     color: colours.GREIGE,
     picture: 'assets/ingredients/milk.png',
   },
+  bread: {
+    color: colours.GREIGE,
+    picture: 'assets/ingredients/bread.png',
+  },
+  cheese: {
+    color: colours.YELLOW,
+    picture: 'assets/ingredients/cheese.png',
+  },
+  lettuce: {
+    color: colours.GREEN,
+    picture: 'assets/ingredients/lettuce.png',
+  },
 };
 
 export const appliancesDictionary = {
@@ -47,13 +59,22 @@ export const appliancesDictionary = {
   },
 };
 
-//How to insure unique ingredient/appliance combos for each order? Could cause issues with cooking logic if not unique
 export const ordersDictionary = {
+  drink: ['drink'],
+  sandwich: ['sandwich'],
+  drinkAndSandwich: ['drink', 'sandwich'],
+  doubleDrink: ['drink', 'drink'],
+  doubleSandwich: ['sandwich', 'sandwich'],
+};
+
+//How to insure unique ingredient/appliance combos for each order? Could cause issues with cooking logic if not unique
+export const menuItemDictionary = {
   bananaSmoothie: {
     name: 'bananaSmoothie',
+    category: 'drink',
     price: 5,
     appliance: 'blender',
-    cookingTime: 4,
+    cookingTime: 20, //cookingTime is the same aS ORDRRING TIME SO IMPOSSIBLE
     recipe: {
       banana: 2,
       milk: 1,
@@ -62,40 +83,76 @@ export const ordersDictionary = {
   },
   strawberryJuice: {
     name: 'strawberryJuice',
+    category: 'drink',
     price: 4,
     appliance: 'blender',
-    cookingTime: 4,
+    cookingTime: 1,
     recipe: {
       strawberry: 2,
       apple: 1,
     },
     picture: 'assets/orders/strawberryJuice.png',
   },
+  cheeseSandwich: {
+    name: 'cheeseSandwich',
+    category: 'sandwich',
+    price: 4,
+    appliance: 'blender',
+    cookingTime: 4,
+    recipe: {
+      bread: 1,
+      cheese: 1,
+      lettuce: 1,
+    },
+    picture: 'assets/orders/cheeseSandwich.png',
+  },
   failedOrder: {
     name: 'failedOrder',
+    category: 'misc',
     cookingTime: 4,
     picture: 'assets/orders/poop.png',
     price: 1,
   },
 };
 
+export const customerDictionary = {
+  frog: {
+    name: 'Frog',
+    picture: 'assets/customers/frog.png',
+    orderPreferrence: ['drink', 'doubleDrink'] as OrderName[],
+  },
+  rabbit: {
+    name: 'Rabbit',
+    picture: 'assets/customers/rabbit.png',
+    orderPreferrence: ['drink', 'sandwich', 'drinkAndSandwich'] as OrderName[], //TO DO anyway to get rid of this cast typing?
+  },
+};
+
 export const levels = {
   level_1: {
     profitGoal: 100,
-    menu: new Map<OrderName, number>([
+    menu: new Map<MenuItemName, number>([
       ['bananaSmoothie', 0.8],
       ['strawberryJuice', 0.4],
     ]),
-    timer: 20,
+    customers: new Map<CustomerName, number>([['frog', 1]]),
+    allowedOrders: ['drink'],
+    timer: 100,
     extraAppliances: ['storage', 'storage'],
   },
   level_2: {
     profitGoal: 100,
-    menu: new Map<OrderName, number>([
-      ['bananaSmoothie', 0.8],
-      ['strawberryJuice', 0.4],
+    menu: new Map<MenuItemName, number>([
+      ['bananaSmoothie', 1],
+      // ['strawberryJuice', 0.2],
+      ['cheeseSandwich', 1],
     ]),
-    timer: 20,
+    customers: new Map<CustomerName, number>([
+      ['frog', 0.7],
+      ['rabbit', 0.3],
+    ]),
+    allowedOrders: ['sandwich', 'drinkAndSandwich', 'doubleDrink'],
+    timer: 100,
     extraAppliances: ['storage'],
   },
 };

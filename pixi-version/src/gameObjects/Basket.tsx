@@ -1,6 +1,12 @@
 import { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BASKET_BOUNDS, BASKET_LID, BASKET_SENSOR, INGREDIENTS, colours } from '../data/constants';
-import { getDirectionFromKey, isAcceptedIngredient, isIngredientName, restrictBodyMovementsToWindow } from '../utils';
+import {
+  getDirectionFromKey,
+  isAcceptedIngredient,
+  isIngredientName,
+  isMenuItemName,
+  restrictBodyMovementsToWindow,
+} from '../utils';
 import { IngredientSprite } from './IngredientSprite';
 import { useBoundStore } from '../store';
 import Matter, { Bodies, Body, Common, Composite, Composites, Events, Vertices, World } from 'matter-js';
@@ -24,7 +30,7 @@ export const Basket: FC = () => {
     inputIngredientsToBasket,
     isBasketFull,
     setBasketContent,
-    collectPendingOrder,
+    collectPendingMenuItem,
   } = useBoundStore();
   const { app } = useApplication();
   const { basketDirection } = useKeyboardControls();
@@ -120,7 +126,7 @@ export const Basket: FC = () => {
       outputIngredientsFromBasket();
     }
     if (basketDirection === 'up' && activeAppliance) {
-      collectPendingOrder(activeApplianceId);
+      collectPendingMenuItem(activeApplianceId);
       inputIngredientsToBasket();
     }
 

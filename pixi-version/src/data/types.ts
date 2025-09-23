@@ -1,4 +1,11 @@
-import { appliancesDictionary, ingredientsDictionary, levels, ordersDictionary } from './constants';
+import {
+  appliancesDictionary,
+  customerDictionary,
+  ingredientsDictionary,
+  levels,
+  menuItemDictionary,
+  ordersDictionary,
+} from './constants';
 
 export type BasketDirection = 'left' | 'right' | 'up' | 'down' | null;
 
@@ -14,13 +21,19 @@ export type OrderStatus = 'pending' | 'timedOut' | 'completed';
 
 export type GameStatus = 'startMenu' | 'levelPicker' | 'startingLevel' | 'playing' | 'paused' | 'gameOver';
 
+export type MenuItemCategory = 'drink' | 'sandwich' | 'doubleDrink' | 'doubleSandwich' | 'misc';
+
 export type IngredientName = keyof typeof ingredientsDictionary;
 
 export type ApplianceName = keyof typeof appliancesDictionary;
 
-export type OrderName = keyof typeof ordersDictionary;
+export type MenuItemName = keyof typeof menuItemDictionary;
 
 export type LevelName = keyof typeof levels;
+
+export type CustomerName = keyof typeof customerDictionary;
+
+export type OrderName = keyof typeof ordersDictionary;
 
 //TODO - Write some unit test for constants to make them typesafe?
 
@@ -29,20 +42,35 @@ export type LevelName = keyof typeof levels;
 //   picture: string;
 // }
 
-// export interface Appliance {
-//   picture: string;
-// }
-
-export interface Order {
-  name: OrderName;
-  price: number;
-  status: OrderStatus;
-  timer: number;
+export interface Customer {
+  name: string;
   picture: string;
+  // patienceRating: number;
+  // tippingRating: number;
+  // quirks: string[];
+  orderPreferrence: OrderName[];
+  // hungerRating: number;
 }
 
-export interface OrderItem {
-  name: OrderName;
+export interface Order {
+  id: string;
+  pendingItems: PendingMenuItem[];
+  totalPrice: number;
+  status: OrderStatus;
+  timer: number;
+  menuItemPictures: string[];
+  customerPicture: string;
+}
+
+export interface PendingMenuItem {
+  name: MenuItemName;
+  fulfilled: boolean;
+}
+
+export interface MenuItem {
+  name: MenuItemName;
+  category: MenuItemCategory;
+  price: number;
   recipe?: Partial<Record<IngredientName, number>>;
   appliance?: ApplianceName;
   cookingTime: number;
@@ -50,10 +78,13 @@ export interface OrderItem {
 }
 
 export interface Level {
-  menu: Map<OrderName, number>;
+  menu: Map<MenuItemName, number>;
+  customers: Map<CustomerName, number>;
+  allowedOrders: OrderName[];
   profitGoal: number;
   timer: number; //minutes
   extraAppliances: ApplianceName[];
+  // featureFlags: string[];
 }
 
 export interface Appliance {
@@ -63,7 +94,7 @@ export interface Appliance {
   contentLimit: number;
   isActive: boolean;
   cookingTimer?: number;
-  pendingOrder?: OrderItem;
+  pendingMenuItem?: MenuItem;
   specialBehaviour?: ApplianceBehaviour[];
 }
 

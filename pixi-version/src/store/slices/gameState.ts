@@ -4,7 +4,6 @@ import { BasketDirection, GameStatus, IngredientName, Level, LevelName, Order } 
 import { createAppliancesMap, generateWeightedInventoryFromMenu, isIngredientTransferPossible } from '../utils';
 import { levels } from '../../data/constants';
 import { isAcceptedIngredient, isApplianceName } from '../../utils';
-import { useTick } from '@pixi/react';
 
 export interface GameState {
   gameState: GameStatus;
@@ -12,6 +11,7 @@ export interface GameState {
   gameTimer: number;
   inventory: Map<IngredientName, number> | undefined;
   basketDirection: BasketDirection;
+  profitMade: number;
   setBasketDirection: (direction: BasketDirection) => void;
   startLevel: (level: LevelName) => void;
   goToLevelPicker: () => void;
@@ -27,6 +27,7 @@ export const createGameStateSlice: StateCreator<BoundSlices, [], [], GameState> 
   gameTimer: 0,
   inventory: undefined,
   basketDirection: null,
+  profitMade: 0,
 
   setBasketDirection: (direction: BasketDirection) => set({ basketDirection: direction } as any),
 
@@ -43,12 +44,12 @@ export const createGameStateSlice: StateCreator<BoundSlices, [], [], GameState> 
     });
 
     setTimeout(() => set({ gameState: 'playing' }), 500);
-    get().scheduleNextOrder();
+    get().startOrderScheduling();
 
     const interval = setInterval(() => {
       if (get().gameTimer > 0 && get().gameState === 'playing') {
         set({ gameTimer: get().gameTimer - 1 });
-        get().updateOrderTimers();
+        get().updateOrderTimersAndStatus();
       } else {
         set({ gameState: get().gameState === 'paused' ? 'paused' : 'gameOver' });
         clearInterval(interval);
@@ -70,12 +71,12 @@ export const createGameStateSlice: StateCreator<BoundSlices, [], [], GameState> 
 
   unpauseGame: () => {
     set({ gameState: 'playing' });
-    get().scheduleNextOrder();
+    get().startOrderScheduling();
 
     const interval = setInterval(() => {
       if (get().gameTimer > 0 && get().gameState === 'playing') {
         set({ gameTimer: get().gameTimer - 1 });
-        get().updateOrderTimers();
+        get().updateOrderTimersAndStatus();
       } else {
         set({ gameState: get().gameState === 'paused' ? 'paused' : 'gameOver' });
         clearInterval(interval);

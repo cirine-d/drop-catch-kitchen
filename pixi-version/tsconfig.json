@@ -1,12 +1,14 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "lib": ["dom", "dom.iterable", "esnext"],
     "target": "ESNext",
-    "types": ["vite/client", "matter-js", "@pixi/react", "pixi.js"],
+    "types": ["vite/client", "matter-js", "@pixi/react", "pixi.js", "react", "react-dom"],
     "isolatedModules": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "jsx": "react-jsx",
     "esModuleInterop": true
-  }
+  },
+  "exclude": ["node_modules"]
 }

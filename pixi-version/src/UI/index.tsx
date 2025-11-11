@@ -4,6 +4,8 @@ import { InGameMenu } from './InGameMenu';
 import { LevelPicker } from './LevelPicker';
 import { OrdersQueue } from './OrdersQueue';
 import { StartMenu } from './StartMenu';
+import { PausedMenu } from './PausedMenu';
+import { GameOverMenu } from './GameOverMenu';
 
 export const UI: React.FC = () => {
   const { gameState } = useBoundStore();
@@ -12,7 +14,9 @@ export const UI: React.FC = () => {
     <div id="ui">
       {gameState === 'startMenu' && <StartMenu />}
       {gameState === 'levelPicker' && <LevelPicker />}
-      {(gameState === 'playing' || gameState === 'paused') && (
+      {gameState === 'paused' && <PausedMenu />}
+      {gameState === 'gameOver' && <GameOverMenu />}
+      {gameState === 'playing' && (
         <div id="inGameDashboard">
           <InGameMenu />
           <OrdersQueue />

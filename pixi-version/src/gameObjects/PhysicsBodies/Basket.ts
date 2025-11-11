@@ -1,4 +1,4 @@
-import { Bodies, Body, Common, Composite, Constraint, Events, Vertices } from 'matter-js';
+import { Bodies, Body, Common, Composite, Constraint, Vertices } from 'matter-js';
 
 import polyDecomp from 'poly-decomp';
 Common.setDecomp(polyDecomp);

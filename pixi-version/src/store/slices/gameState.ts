@@ -1,6 +1,6 @@
 import { StateCreator } from 'zustand';
 import { BoundSlices } from '..';
-import { BasketDirection, GameStatus, IngredientName, Level, LevelName, Order } from '../../data/types';
+import { Appliance, BasketDirection, GameStatus, IngredientName, Level, LevelName, Order } from '../../data/types';
 import { createAppliancesMap, generateWeightedInventoryFromMenu, isIngredientTransferPossible } from '../utils';
 import { levels } from '../../data/constants';
 import { isAcceptedIngredient, isApplianceName } from '../../utils';
@@ -15,8 +15,10 @@ export interface GameState {
   setBasketDirection: (direction: BasketDirection) => void;
   startLevel: (level: LevelName) => void;
   goToLevelPicker: () => void;
+  goToMainMenu: () => void;
   pauseGame: () => void;
   unpauseGame: () => void;
+  stopGame: () => void;
   outputIngredientsFromBasket: () => void;
   inputIngredientsToBasket: () => void;
 }
@@ -65,6 +67,12 @@ export const createGameStateSlice: StateCreator<BoundSlices, [], [], GameState> 
     });
   },
 
+  goToMainMenu: () => {
+    set({
+      gameState: 'startMenu',
+    });
+  },
+
   pauseGame: () => {
     set({ gameState: 'paused' });
   },
@@ -84,6 +92,19 @@ export const createGameStateSlice: StateCreator<BoundSlices, [], [], GameState> 
         return;
       }
     }, 1000);
+  },
+
+  stopGame: () => {
+    get().clearPhysics();
+    get().clearAllOrders();
+
+    set({
+      gameTimer: 0,
+      currentLevel: undefined,
+      inventory: undefined,
+      appliances: undefined,
+      basketContent: [],
+    });
   },
 
   outputIngredientsFromBasket: () => {

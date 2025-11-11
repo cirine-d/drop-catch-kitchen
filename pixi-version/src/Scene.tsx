@@ -7,8 +7,7 @@ import { Basket } from './gameObjects/Basket';
 import { Ingredient } from './gameObjects/Ingredient';
 // import AppliancesBar from './gameObjects/Appliances/AppliancesBar';
 import { useBoundStore } from './store';
-import { useApplication, useTick } from '@pixi/react';
-import { Container } from 'pixi.js';
+import { useTick } from '@pixi/react';
 import { useGameWindowBoundaries } from './store/utilityHooks';
 import AppliancesBar from './gameObjects/Appliances/AppliancesBar';
 
@@ -16,6 +15,12 @@ export const Scene: FC = () => {
   const gameBoundaries = useGameWindowBoundaries();
   const { gameState, inventory, appliances, updatePhysics } = useBoundStore();
   const [fallingIngredients, setFallingIngredients] = useState<JSX.Element[]>([]);
+
+  useEffect(() => {
+    if (gameState === 'levelPicker') {
+      setFallingIngredients([]);
+    }
+  }, [gameState]);
 
   useEffect(() => {
     if (gameState === 'startingLevel') {
@@ -34,7 +39,7 @@ export const Scene: FC = () => {
       if (gameState === 'playing') {
         addIngredientToScene(generateItemFromWeightedList(inventory));
       }
-    }, 1500);
+    }, 1000);
     return () => clearInterval(interval);
   }, [gameState]);
 
@@ -58,7 +63,7 @@ export const Scene: FC = () => {
   return (
     <>
       {fallingIngredients.map(ingredient => ingredient)}
-      {gameState !== 'startMenu' && <Basket />}
+      {(gameState === 'playing' || gameState === 'paused' || gameState === 'gameOver') && <Basket />}
       {appliances !== undefined ? <AppliancesBar appliances={appliances} /> : null}
       {/* development tools */}
       {/* development tools */}

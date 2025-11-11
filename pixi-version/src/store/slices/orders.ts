@@ -21,6 +21,7 @@ export interface Orders {
   orderSchedulingInterval: number | null;
   addOrder: () => void;
   removeOrder: (orderId: string) => void;
+  clearAllOrders: () => void;
   startOrderScheduling: () => void;
   stopOrderScheduling: () => void;
   updateOrderTimersAndStatus: () => void;
@@ -62,6 +63,10 @@ export const createOrdersSlice: StateCreator<BoundSlices, [], [], Orders> = (set
   removeOrder: (orderId: string) => {
     const updatedOrderQueue = [...get().orderQueue].filter(order => order.id !== orderId);
     set({ orderQueue: updatedOrderQueue });
+  },
+
+  clearAllOrders: () => {
+    set({ orderQueue: [] });
   },
 
   startOrderScheduling: () => {

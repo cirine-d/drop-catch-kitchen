@@ -138,3 +138,21 @@ const areRecordsEqual = (record1: Record<string, number>, record2: Record<string
 
   return true;
 };
+
+export const getLevelEndScore = (profitGoal: number, profitMade: number) => {
+  const score = profitMade / profitGoal;
+
+  if (score >= 1 / 3 && score < 2 / 3) {
+    return 1;
+  }
+
+  if (score >= 2 / 3 && score < 1) {
+    return 2;
+  }
+
+  if (score >= 1) {
+    return 3;
+  }
+
+  return 0;
+};

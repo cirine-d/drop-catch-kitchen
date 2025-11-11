@@ -78,6 +78,7 @@ export interface MenuItem {
 }
 
 export interface Level {
+  name: LevelName;
   menu: Map<MenuItemName, number>;
   customers: Map<CustomerName, number>;
   allowedOrders: OrderName[];

@@ -1,7 +1,7 @@
 import { FC, useState, useMemo, useEffect } from 'react';
 import { IngredientName } from '../data/types';
 import { ingredientsDictionary } from '../data/constants';
-import { Assets, ColorDodgeBlend, Sprite, Texture } from 'pixi.js';
+import { Assets, ColorDodgeBlend, Texture } from 'pixi.js';
 
 interface Props {
   position: { x: number; y: number };

@@ -74,7 +74,7 @@ export const menuItemDictionary = {
     category: 'drink',
     price: 5,
     appliance: 'blender',
-    cookingTime: 20, //cookingTime is the same aS ORDRRING TIME SO IMPOSSIBLE
+    cookingTime: 4,
     recipe: {
       banana: 2,
       milk: 1,
@@ -130,18 +130,20 @@ export const customerDictionary = {
 
 export const levels = {
   level_1: {
-    profitGoal: 100,
+    name: 'level_1',
+    profitGoal: 60,
     menu: new Map<MenuItemName, number>([
       ['bananaSmoothie', 0.8],
       ['strawberryJuice', 0.4],
     ]),
     customers: new Map<CustomerName, number>([['frog', 1]]),
     allowedOrders: ['drink'],
-    timer: 100,
+    timer: 5,
     extraAppliances: ['storage', 'storage'],
   },
   level_2: {
-    profitGoal: 100,
+    name: 'level_2',
+    profitGoal: 60,
     menu: new Map<MenuItemName, number>([
       ['bananaSmoothie', 1],
       // ['strawberryJuice', 0.2],
@@ -152,8 +154,8 @@ export const levels = {
       ['rabbit', 0.3],
     ]),
     allowedOrders: ['sandwich', 'drinkAndSandwich', 'doubleDrink'],
-    timer: 100,
-    extraAppliances: ['storage'],
+    timer: 2,
+    extraAppliances: ['blender', 'blender', 'storage'],
   },
 };
 

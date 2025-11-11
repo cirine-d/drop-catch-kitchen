@@ -1,12 +1,13 @@
 import { StateCreator } from 'zustand';
 import { BoundSlices } from '..';
-import { Body, Engine, Runner, World } from 'matter-js';
+import { Body, Composite, Engine, Runner, World } from 'matter-js';
 
 export interface GamePhysics {
   engine: Engine;
   physicsWorld: World;
   addBody: (body: Body) => void;
   removeBody: (body: Body) => void;
+  clearPhysics: () => void;
   updatePhysics: (delta: number) => void;
 }
 
@@ -25,6 +26,10 @@ export const createGamePhysicsSlice: StateCreator<BoundSlices, [], [], GamePhysi
 
     removeBody: (body: Body) => {
       World.remove(get().physicsWorld, body);
+    },
+
+    clearPhysics: () => {
+      Composite.clear(engine.world, false);
     },
 
     updatePhysics: (delta: number) => {

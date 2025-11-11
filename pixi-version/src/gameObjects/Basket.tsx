@@ -1,15 +1,8 @@
-import { FC, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { BASKET_BOUNDS, BASKET_LID, BASKET_SENSOR, INGREDIENTS, colours } from '../data/constants';
-import {
-  getDirectionFromKey,
-  isAcceptedIngredient,
-  isIngredientName,
-  isMenuItemName,
-  restrictBodyMovementsToWindow,
-} from '../utils';
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { isAcceptedIngredient, isIngredientName, restrictBodyMovementsToWindow } from '../utils';
 import { IngredientSprite } from './IngredientSprite';
 import { useBoundStore } from '../store';
-import Matter, { Bodies, Body, Common, Composite, Composites, Events, Vertices, World } from 'matter-js';
+import Matter, { Body, Composite, Events } from 'matter-js';
 import { useGameWindowBoundaries, useKeyboardControls } from '../store/utilityHooks';
 import { BasketMatter } from './PhysicsBodies/Basket';
 import { useApplication, useTick } from '@pixi/react';
@@ -40,12 +33,11 @@ export const Basket: FC = () => {
   const [impulse, setImpulse] = useState<number>(0);
   const [basketEmptyTexture, setbasketEmptyTexture] = useState(Texture.EMPTY);
   const [basketFulltexture, setbasketFulltexture] = useState(Texture.EMPTY);
-
   const startPosition = { x: gameBoundaries.left + 100, y: gameBoundaries.bottom - 240 };
   const activeAppliance = useMemo(() => appliances.get(activeApplianceId), [appliances, activeApplianceId]);
 
   useEffect(() => {
-    Composite.translate(BasketMatter, { x: startPosition.x, y: startPosition.y });
+    Composite.allBodies(BasketMatter).forEach(body => Body.setPosition(body, startPosition));
     Composite.add(physicsWorld, [BasketMatter]);
 
     if (basketEmptyTexture === Texture.EMPTY) {
@@ -186,7 +178,7 @@ export const Basket: FC = () => {
   //TODO zIndex not working properly
   return (
     <pixiContainer isRenderGroup={true} scale={{ x: 0.35, y: 0.35 }} ref={spriteRef}>
-      <pixiSprite texture={basketFulltexture} zIndex={2} anchor={{ x: 0.5, y: 0.7 }} visible={isBasketFull()} />
+      <pixiSprite texture={basketFulltexture} zIndex={-1} anchor={{ x: 0.5, y: 0.7 }} visible={isBasketFull()} />
       <pixiSprite texture={basketEmptyTexture} zIndex={8} anchor={{ x: 0.5, y: 0.7 }} visible={!isBasketFull()} />
       <BasketContentDisplay />
     </pixiContainer>

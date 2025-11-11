@@ -1,11 +1,9 @@
 import React from 'react';
-import Matter, { Bodies, Body, Engine, Events, Render, Runner, World } from 'matter-js';
-import { FC, useEffect, useRef, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { IngredientName } from './data/types';
 import { generateItemFromWeightedList, generateRandom } from './utils';
 import { Basket } from './gameObjects/Basket';
 import { Ingredient } from './gameObjects/Ingredient';
-// import AppliancesBar from './gameObjects/Appliances/AppliancesBar';
 import { useBoundStore } from './store';
 import { useTick } from '@pixi/react';
 import { useGameWindowBoundaries } from './store/utilityHooks';

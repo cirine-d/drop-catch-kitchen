@@ -12,6 +12,8 @@ export interface GameState {
   inventory: Map<IngredientName, number> | undefined;
   basketDirection: BasketDirection;
   profitMade: number;
+  completedLevels: Record<LevelName, 1 | 2 | 3>;
+  completeLevel: (levelName: LevelName, score: number) => void;
   setBasketDirection: (direction: BasketDirection) => void;
   startLevel: (level: LevelName) => void;
   goToLevelPicker: () => void;
@@ -30,6 +32,13 @@ export const createGameStateSlice: StateCreator<BoundSlices, [], [], GameState> 
   inventory: undefined,
   basketDirection: null,
   profitMade: 0,
+  completedLevels: {} as Record<LevelName, 1 | 2 | 3>,
+
+  completeLevel: (levelName: LevelName, score: 1 | 2 | 3) => {
+    set(state => ({
+      completedLevels: { ...state.completedLevels, [levelName]: score },
+    }));
+  },
 
   setBasketDirection: (direction: BasketDirection) => set({ basketDirection: direction } as any),
 

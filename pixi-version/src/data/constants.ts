@@ -157,6 +157,22 @@ export const levels = {
     timer: 2,
     extraAppliances: ['blender', 'blender', 'storage'],
   },
+  level_3: {
+    name: 'level_2',
+    profitGoal: 60,
+    menu: new Map<MenuItemName, number>([
+      ['bananaSmoothie', 1],
+      // ['strawberryJuice', 0.2],
+      ['cheeseSandwich', 1],
+    ]),
+    customers: new Map<CustomerName, number>([
+      ['frog', 0.7],
+      ['rabbit', 0.3],
+    ]),
+    allowedOrders: ['sandwich', 'drinkAndSandwich', 'doubleDrink'],
+    timer: 2,
+    extraAppliances: ['blender', 'blender', 'storage'],
+  },
 };
 
 export const SCALE_DIVIDER = 150;

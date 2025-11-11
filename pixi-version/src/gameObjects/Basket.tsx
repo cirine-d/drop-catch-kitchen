@@ -34,7 +34,7 @@ export const Basket: FC = () => {
   const [basketEmptyTexture, setbasketEmptyTexture] = useState(Texture.EMPTY);
   const [basketFulltexture, setbasketFulltexture] = useState(Texture.EMPTY);
   const startPosition = { x: gameBoundaries.left + 100, y: gameBoundaries.bottom - 240 };
-  const activeAppliance = useMemo(() => appliances.get(activeApplianceId), [appliances, activeApplianceId]);
+  const activeAppliance = useMemo(() => appliances?.get(activeApplianceId), [appliances, activeApplianceId]);
 
   useEffect(() => {
     Composite.allBodies(BasketMatter).forEach(body => Body.setPosition(body, startPosition));

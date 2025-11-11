@@ -5,9 +5,15 @@ import { levels } from 'src/data/constants';
 import { isLevelName } from 'src/utils';
 
 export const GameOverMenu: React.FC = () => {
-  const { profitMade, goToMainMenu, startLevel, currentLevel, stopGame } = useBoundStore();
+  const { profitMade, goToMainMenu, startLevel, currentLevel, stopGame, completeLevel } = useBoundStore();
 
-  const endScore = getLevelEndScore(currentLevel?.profitGoal, profitMade);
+  const endScore = getLevelEndScore(currentLevel?.profitGoal, 60);
+
+  React.useEffect(() => {
+    if (endScore > 0) {
+      completeLevel(currentLevel.name, endScore);
+    }
+  }, [endScore, currentLevel]);
 
   const handleMainMenu = () => {
     stopGame();

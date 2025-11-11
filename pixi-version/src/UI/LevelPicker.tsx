@@ -1,10 +1,10 @@
 import React from 'react';
 import { levels } from '../data/constants';
 import { useBoundStore } from '../store';
-import { isLevelName } from '../utils';
+import { isLevelEnabled, isLevelName } from '../utils';
 
 export const LevelPicker: React.FC = () => {
-  const { startLevel } = useBoundStore();
+  const { startLevel, completedLevels } = useBoundStore();
 
   return (
     <div id="levelPicker">
@@ -14,6 +14,7 @@ export const LevelPicker: React.FC = () => {
           key={`level-${levelName}`}
           id={`level-${levelName}`}
           onClick={() => isLevelName(levelName) && startLevel(levelName)}
+          disabled={isLevelName(levelName) && !isLevelEnabled(completedLevels, levelName)}
         >
           {levelName}
         </button>

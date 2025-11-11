@@ -139,3 +139,26 @@ export const restrictBodyMovementsToWindow = (body: Matter.Body) => {
     Body.setVelocity(body, { x: 0, y: 0 });
   }
 };
+
+export const isLevelEnabled = (completedLevels: Record<LevelName, number> | undefined, level: LevelName) => {
+  const getLevelNumber = levelName => parseInt(levelName.split('_')[1]);
+
+  if (Object.keys(completedLevels).length === 0 && getLevelNumber(level) === 1) {
+    return true;
+  }
+
+  if (Object.keys(completedLevels).includes(level)) {
+    return true;
+  }
+
+  if (
+    Object.keys(completedLevels)
+      .map(completedLevel => getLevelNumber(completedLevel))
+      .toSorted((a, b) => b - a)[0] ===
+    getLevelNumber(level) - 1
+  ) {
+    return true;
+  }
+
+  return false;
+};

@@ -1,6 +1,15 @@
 import { StateCreator } from 'zustand';
 import { BoundSlices } from '..';
-import { Appliance, BasketDirection, GameStatus, IngredientName, Level, LevelName, Order } from '../../data/types';
+import {
+  Appliance,
+  BasketDirection,
+  GameStatus,
+  IngredientName,
+  Level,
+  LevelName,
+  Order,
+  PlayerAction,
+} from '../../data/types';
 import { createAppliancesMap, generateWeightedInventoryFromMenu, isIngredientTransferPossible } from '../utils';
 import { levels } from '../../data/constants';
 import { isAcceptedIngredient, isApplianceName } from '../../utils';
@@ -11,10 +20,12 @@ export interface GameState {
   gameTimer: number;
   inventory: Map<IngredientName, number> | undefined;
   basketDirection: BasketDirection;
+  currentAction: PlayerAction;
   profitMade: number;
   completedLevels: Record<LevelName, 1 | 2 | 3>;
   completeLevel: (levelName: LevelName, score: number) => void;
   setBasketDirection: (direction: BasketDirection) => void;
+  setCurrentAction: (action: PlayerAction) => void;
   startLevel: (level: LevelName) => void;
   goToLevelPicker: () => void;
   goToMainMenu: () => void;
@@ -31,6 +42,7 @@ export const createGameStateSlice: StateCreator<BoundSlices, [], [], GameState> 
   gameTimer: 0,
   inventory: undefined,
   basketDirection: null,
+  currentAction: null,
   profitMade: 0,
   completedLevels: {} as Record<LevelName, 1 | 2 | 3>,
 
@@ -40,7 +52,9 @@ export const createGameStateSlice: StateCreator<BoundSlices, [], [], GameState> 
     }));
   },
 
-  setBasketDirection: (direction: BasketDirection) => set({ basketDirection: direction } as any),
+  setBasketDirection: (direction: BasketDirection) => set({ basketDirection: direction }),
+
+  setCurrentAction: (action: PlayerAction) => set({ currentAction: action }),
 
   startLevel: (levelName: LevelName) => {
     set({

@@ -66,7 +66,7 @@ export const generateCustomerOrder = (
   return orderedItems;
 };
 
-export const getDirectionFromKey = (event): BasketDirection => {
+export const getDirectionFromKey = (event): 'left' | 'right' | 'up' | 'down' | null => {
   switch (event.code) {
     case 'KeyA':
       return 'left';

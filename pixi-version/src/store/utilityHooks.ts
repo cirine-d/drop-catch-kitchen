@@ -1,26 +1,83 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useBoundStore } from '.';
 import { GameWindowBoundaries } from '../data/types';
 import { getDirectionFromKey } from '../utils';
 
 export const useKeyboardControls = () => {
-  const { setBasketDirection } = useBoundStore();
+  const { setBasketDirection, setCurrentAction } = useBoundStore();
+  const currentKeys = useRef({
+    left: false,
+    right: false,
+    up: false,
+    down: false,
+  });
+
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    switch (getDirectionFromKey(e)) {
+      case 'right':
+        currentKeys.current.right = true;
+        setBasketDirection('right');
+        break;
+      case 'left':
+        currentKeys.current.left = true;
+        setBasketDirection('left');
+        break;
+      case 'up':
+        currentKeys.current.up = true;
+        setCurrentAction('pickUp');
+        break;
+      case 'down':
+        currentKeys.current.down = true;
+        setCurrentAction('drop');
+        break;
+      default:
+        return;
+    }
+  }, []);
+
+  const handleKeyUp = useCallback((e: KeyboardEvent) => {
+    switch (getDirectionFromKey(e)) {
+      case 'right':
+        currentKeys.current.right = false;
+        if (currentKeys.current.left) {
+          setBasketDirection('left');
+        }
+        break;
+      case 'left':
+        currentKeys.current.left = false;
+        if (currentKeys.current.right) {
+          setBasketDirection('right');
+        }
+        break;
+      case 'up':
+        currentKeys.current.up = false;
+        if (!currentKeys.current.down) {
+          setCurrentAction(null);
+        }
+        break;
+      case 'down':
+        currentKeys.current.down = false;
+        if (!currentKeys.current.up) {
+          setCurrentAction(null);
+        }
+        break;
+      default:
+        return;
+    }
+
+    if (!currentKeys.current.right && !currentKeys.current.left) {
+      setBasketDirection(null);
+    }
+  }, []);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      setBasketDirection(getDirectionFromKey(e));
-    };
-    const handleKeyUp = (e: KeyboardEvent) => {
-      setBasketDirection(null);
-    };
-
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [setBasketDirection]);
+  }, [setBasketDirection, handleKeyDown, handleKeyUp]);
 
   return useBoundStore();
 };

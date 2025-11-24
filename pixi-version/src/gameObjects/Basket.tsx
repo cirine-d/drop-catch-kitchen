@@ -26,7 +26,7 @@ export const Basket: FC = () => {
     collectPendingMenuItem,
   } = useBoundStore();
   const { app } = useApplication();
-  const { basketDirection } = useKeyboardControls();
+  const { basketDirection, currentAction } = useKeyboardControls();
   const gameBoundaries = useGameWindowBoundaries();
   const basketBodyRef = useRef<Matter.Body[]>(BasketMatter.bodies);
   const basketGroupRef = useRef<Container | null>(null);
@@ -109,21 +109,23 @@ export const Basket: FC = () => {
 
   useEffect(() => {
     if (basketDirection === 'left' && basketBody.position.x >= 0) {
-      return setImpulse(-5);
+      setImpulse(-5);
     }
     if (basketDirection === 'right' && basketBody.position.x <= window.outerWidth) {
-      return setImpulse(5);
+      setImpulse(5);
     }
-    if (basketDirection === 'down') {
+    if (currentAction === 'drop') {
       outputIngredientsFromBasket();
     }
-    if (basketDirection === 'up' && activeAppliance) {
+    if (currentAction === 'pickUp' && activeAppliance) {
       collectPendingMenuItem(activeApplianceId);
       inputIngredientsToBasket();
     }
 
-    setImpulse(0);
-  }, [basketDirection, activeAppliance]);
+    if (basketDirection === null) {
+      setImpulse(0);
+    }
+  }, [basketDirection, currentAction, activeAppliance]);
 
   const BasketContentDisplay: FC = () => (
     <>

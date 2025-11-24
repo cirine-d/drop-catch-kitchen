@@ -7,7 +7,9 @@ import {
   ordersDictionary,
 } from './constants';
 
-export type BasketDirection = 'left' | 'right' | 'up' | 'down' | null;
+export type BasketDirection = 'left' | 'right' | null;
+
+export type PlayerAction = 'drop' | 'pickUp' | null;
 
 export type MenuAction = 'start' | 'pause';
 

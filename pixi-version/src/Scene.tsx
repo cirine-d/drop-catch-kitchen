@@ -15,14 +15,8 @@ export const Scene: FC = () => {
   const [fallingIngredients, setFallingIngredients] = useState<JSX.Element[]>([]);
 
   useEffect(() => {
-    if (gameState === 'levelPicker') {
+    if (gameState === 'startingLevel' || gameState === 'levelPicker' || gameState === 'startMenu') {
       setFallingIngredients([]);
-    }
-  }, [gameState]);
-
-  useEffect(() => {
-    if (gameState === 'startingLevel') {
-      // setUpGame();
     }
 
     let interval = setInterval(() => {

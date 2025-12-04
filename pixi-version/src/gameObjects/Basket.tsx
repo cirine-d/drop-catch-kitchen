@@ -37,7 +37,8 @@ export const Basket: FC = () => {
   const activeAppliance = useMemo(() => appliances?.get(activeApplianceId), [appliances, activeApplianceId]);
 
   useEffect(() => {
-    Composite.allBodies(BasketMatter).forEach(body => Body.setPosition(body, startPosition));
+    // Composite.allBodies(BasketMatter).forEach(body => Body.setPosition(body, startPosition));
+    Composite.translate(BasketMatter, { x: startPosition.x, y: startPosition.y });
     Composite.add(physicsWorld, [BasketMatter]);
 
     if (basketEmptyTexture === Texture.EMPTY) {

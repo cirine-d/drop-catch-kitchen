@@ -146,7 +146,7 @@ export const Basket: FC = () => {
       )}
       {basketContent[1] !== undefined && (
         <IngredientSprite
-          position={{ x: 0.5, y: 0.3 }}
+          position={{ x: 0.4, y: 0.3 }}
           ingredientName={basketContent[1]}
           isActive={
             activeAppliance
@@ -161,7 +161,7 @@ export const Basket: FC = () => {
       )}
       {basketContent[2] !== undefined && (
         <IngredientSprite
-          position={{ x: -1.4, y: 0.3 }}
+          position={{ x: -0.7, y: 0.3 }}
           ingredientName={basketContent[2]}
           isActive={
             activeAppliance
